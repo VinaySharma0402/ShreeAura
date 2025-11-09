@@ -42,6 +42,9 @@ export default function CheckoutPage({ setCurrentPage }: CheckoutPageProps) {
   const [locationWarning, setLocationWarning] = useState("");
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [transactionId, setTransactionId] = useState("");
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [location.pathname]);
     console.log(suser+"-----------------"+transactionId);
   const [shipping, setShipping] = useState({
     name: "",

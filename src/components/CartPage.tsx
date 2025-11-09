@@ -5,6 +5,7 @@ import { Card, CardContent } from "../components/ui/card";
 import { Separator } from "../components/ui/separator";
 import { ImageWithFallback } from "../components/figma/ImageWithFallback";
 import { useCart } from "../contexts/CartContext";
+import { useEffect } from "react";
 
 interface CartPageProps {
   setCurrentPage: (page: string) => void;
@@ -15,7 +16,9 @@ export default function CartPage({ setCurrentPage }: CartPageProps) {
   const subtotal = getCartTotal();
   const tax = subtotal * 0.18;
   const total = subtotal + tax;
-
+useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [location.pathname]);
   if (items.length === 0) {
     return (
       <div className="min-h-screen bg-[#1a0f1a] flex items-center justify-center">

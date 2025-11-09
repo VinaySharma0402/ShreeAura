@@ -24,11 +24,13 @@ export default function HomePage({ setCurrentPage }: HomePageProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoSliding, setIsAutoSliding] = useState(true);
   const [selectedPrice] = useState<number | null>(null);
-
+useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [location.pathname]);
   const heroSlides = [
-    { id: 1, image: girlsProduct, title: "Explore the Latest Fashion", subtitle: "Trendy Styles Just for You" },
-    { id: 2, image: electronics, title: "Power Up with Electronics", subtitle: "Upgrade Your Everyday Life" },
-    { id: 3, image: birthday, title: "Celebrate Every Moment", subtitle: "Find Perfect Gifts for Every Occasion" },
+    { id: 1, image: girlsProduct, title: "Explore the Latest Fashion", subtitle: "Trendy Styles Just for You", name:"Makeup essential" },
+    { id: 2, image: electronics, title: "Power Up with Electronics", subtitle: "Upgrade Your Everyday Life" ,name:"Electronics" },
+    { id: 3, image: birthday, title: "Celebrate Every Moment", subtitle: "Find Perfect Gifts for Every Occasion", name:"Birthday" },
   ];
 
   const pricePlans = [
@@ -116,7 +118,7 @@ export default function HomePage({ setCurrentPage }: HomePageProps) {
                       {slide.subtitle}
                     </motion.p>
                     <motion.button
-                      onClick={() => setCurrentPage("search")}
+                      onClick={() => setCurrentPage("search",{category: slide.name})}
                       className="bg-[#FFD369] text-[#1a0f1a] font-semibold px-6 py-3 rounded-full shadow-lg hover:shadow-[#FFD369]/50 hover:bg-[#ffcb47] transition-all"
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.95 }}

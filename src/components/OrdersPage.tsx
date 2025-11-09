@@ -68,7 +68,9 @@ export default function OrdersPage({ setCurrentPage }: OrdersPageProps) {
   const [selectedTab, setSelectedTab] = useState("all");
   const [showDropdown, setShowDropdown] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
-
+useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [location.pathname]);
   useEffect(() => {
     const loadOrders = async () => {
       setLoading(true);

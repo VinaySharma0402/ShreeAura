@@ -30,7 +30,9 @@ export default function SearchPage({
 }: SearchPageProps) {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
-
+useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [location.pathname]);
   const qName = params.get("name") || "";
   const qCategory = params.get("category") || "";
   const qBrand = params.get("brand") || "";
@@ -342,7 +344,21 @@ export default function SearchPage({
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0f0a10] to-[#1a0f1a] text-white">
+    <div className="relative min-h-screen bg-gradient-to-b from-[#0f0a10] to-[#1a0f1a] text-white">
+      {/* ✅ Full Page Loader Overlay */}
+      {loading && (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#0f0a10]/90 backdrop-blur-sm">
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+            className="w-14 h-14 border-4 border-[#FFD369] border-t-transparent rounded-full mb-6"
+          ></motion.div>
+          <p className="text-lg font-semibold text-[#FFD369] tracking-wide">
+            Fetching Products...
+          </p>
+        </div>
+      )}
+
       <div className="container mx-auto px-4 py-10 flex flex-col lg:flex-row gap-8">
         {/* Mobile Filter Toggle */}
         <div className="lg:hidden mb-4">
@@ -371,16 +387,7 @@ export default function SearchPage({
 
         {/* Product Grid */}
         <main className="flex-1">
-          {loading ? (
-            <div className="flex flex-col items-center justify-center py-20">
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ repeat: Infinity, duration: 1.2, ease: "linear" }}
-                className="w-12 h-12 border-4 border-[#FFD369] border-t-transparent rounded-full mb-6"
-              ></motion.div>
-              <p className="text-lg font-medium text-[#FFD369]">Loading...</p>
-            </div>
-          ) : products.length > 0 ? (
+          {!loading && products.length > 0 ? (
             <motion.div
               layout
               className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-items-center"
@@ -416,37 +423,39 @@ export default function SearchPage({
               })}
             </motion.div>
           ) : (
-            <div className="flex flex-col items-center justify-center py-24">
-              <motion.div
-                initial={{ scale: 0, rotate: -15 }}
-                animate={{ scale: 1, rotate: 0 }}
-                transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                className="bg-[#2C1E4A]/40 p-6 rounded-full border border-[#FFD369]/30 shadow-lg shadow-[#FFD369]/10"
-              >
-                <SearchX className="w-14 h-14 text-[#FFD369]" />
-              </motion.div>
+            !loading && (
+              <div className="flex flex-col items-center justify-center py-24">
+                <motion.div
+                  initial={{ scale: 0, rotate: -15 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  transition={{ type: "spring", stiffness: 200, damping: 15 }}
+                  className="bg-[#2C1E4A]/40 p-6 rounded-full border border-[#FFD369]/30 shadow-lg shadow-[#FFD369]/10"
+                >
+                  <SearchX className="w-14 h-14 text-[#FFD369]" />
+                </motion.div>
 
-              <motion.h3
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-[#FFD369] font-bold text-2xl mt-6"
-              >
-                No Products Found
-              </motion.h3>
+                <motion.h3
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-[#FFD369] font-bold text-2xl mt-6"
+                >
+                  No Products Found
+                </motion.h3>
 
-              <p className="text-gray-400 text-center mt-2 max-w-sm">
-                We couldn’t find any products matching your filters.  
-                Try adjusting your selections or come back later.
-              </p>
+                <p className="text-gray-400 text-center mt-2 max-w-sm">
+                  We couldn’t find any products matching your filters.  
+                  Try adjusting your selections or come back later.
+                </p>
 
-              <motion.div
-                animate={{ y: [0, -10, 0] }}
-                transition={{ repeat: Infinity, duration: 2 }}
-                className="text-5xl mt-8"
-              >
-                🛍️
-              </motion.div>
-            </div>
+                <motion.div
+                  animate={{ y: [0, -10, 0] }}
+                  transition={{ repeat: Infinity, duration: 2 }}
+                  className="text-5xl mt-8"
+                >
+                  🛍️
+                </motion.div>
+              </div>
+            )
           )}
         </main>
       </div>

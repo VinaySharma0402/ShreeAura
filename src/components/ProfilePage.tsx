@@ -37,7 +37,9 @@ export default function ProfilePage({ setCurrentPage }: ProfilePageProps) {
   const [editedUser, setEditedUser] = useState<User>({} as User);
   const [isEditing, setIsEditing] = useState(false);
   const [orderCount, setOrderCount] = useState<number>(0);
-
+useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [location.pathname]);
   // ✅ Fetch user first
   useEffect(() => {
     const token = localStorage.getItem("token");
