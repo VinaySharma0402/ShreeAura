@@ -5,10 +5,23 @@ import { Label } from "../components/ui/label";
 import { toast } from "sonner";
 import { useCart } from "../contexts/CartContext";
 import { useAuth } from "../contexts/AuthContext";
-import { fetchUserProfile, placeOrder, type User } from "../components/services/costumer";
+import {
+  fetchUserProfile,
+  placeOrder,
+  createRazorpayOrder,
+  checkRazorpayOrderStatus,
+  type User,
+} from "../components/services/costumer";
 import { isLoggedIn, getUserIdFromToken } from "../components/services/auth";
 import { jwtDecode } from "jwt-decode";
 import type { TokenPayload } from "./ProfilePage";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "../components/ui/dialog";
 
 interface CheckoutPageProps {
   setCurrentPage: (page: string) => void;
@@ -16,41 +29,53 @@ interface CheckoutPageProps {
 
 export default function CheckoutPage({ setCurrentPage }: CheckoutPageProps) {
   const { items, getCartTotal, clearCart } = useCart();
-  const [suser, setSuser] = useState<User | null>(null);
   const { user } = useAuth();
   const subtotal = getCartTotal();
   const tax = subtotal * 0.18;
   const total = subtotal + tax;
+
   const [isProcessing, setIsProcessing] = useState(false);
- useEffect(() => {
+  const [suser, setSuser] = useState<User | null>(null);
+
+  const [coords, setCoords] = useState({ lat: 0, lng: 0 });
+  const [modeOfPayment, setModeOfPayment] = useState("cod");
+  const [locationWarning, setLocationWarning] = useState("");
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  const [transactionId, setTransactionId] = useState("");
+    console.log(suser+"-----------------"+transactionId);
+  const [shipping, setShipping] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    city: "",
+    state: "",
+    address: "",
+    pincode: "",
+  });
+
+  useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) return;
-
     try {
       const decoded: TokenPayload = jwtDecode(token);
       fetchUserProfile(decoded.User.id)
-        .then((profile) => {
-          setSuser(profile);
-          
+        .then((userData) => {
+          setSuser(userData);
+          setShipping({
+            name: userData.name || "",
+            email: userData.email || "",
+            phone: userData.phone || "",
+            address: userData.address || "",
+            city: userData.city || "",
+            state: userData.state || "",
+            pincode: userData.pincode || "",
+          });
         })
         .catch((err) => console.error("Failed to fetch profile:", err));
     } catch (err) {
       console.error("Failed to decode token:", err);
     }
   }, []);
-  const [shipping, setShipping] = useState({
-    name: user?.name || "",
-    email: user?.email || "",
-    phone: user?.phone || "",
-    address: user?.address?.street || "",
-    city: user?.address?.city || "",
-    state: user?.address?.state || "",
-    pincode: user?.pincode || "",
-  });
-
-  const [coords, setCoords] = useState({ lat: 0, lng: 0 });
-  const [paymentMethod, setPaymentMethod] = useState("cod");
-  const [locationWarning, setLocationWarning] = useState("");
 
   const handlePlaceOrder = async () => {
     if (!isLoggedIn()) {
@@ -77,25 +102,77 @@ export default function CheckoutPage({ setCurrentPage }: CheckoutPageProps) {
         quantity: item.quantity,
       }));
 
-      await placeOrder(
-        {
-          userId: userId!,
-          products,
-          address: `${shipping.address}, ${shipping.city}, ${shipping.state}`,
-          pincode: parseInt(shipping.pincode),
-          price: total,
-          phone: shipping.phone,
-          paymentMethod,
-        },
-        coords.lat,
-        coords.lng
-      );
+      const orderPayload = {
+        userId: userId!,
+        products,
+        address: `${shipping.address}, ${shipping.city}, ${shipping.state}`,
+        pincode: parseInt(shipping.pincode),
+        price: total,
+        phone: shipping.phone,
+        modeOfPayment,
+      };
 
-      toast.success("Order placed successfully!");
-      clearCart();
-      setCurrentPage("orders");
+      if (modeOfPayment === "cod") {
+        await placeOrder(orderPayload, coords.lat, coords.lng, "");
+        setShowSuccessDialog(true);
+        clearCart();
+        return;
+      }
+
+      if (modeOfPayment === "online") {
+        const orderData = await createRazorpayOrder(userId!, total);
+
+        const options = {
+          key: "rzp_test_RRKxLSOY1MRUrw",
+          amount: orderData.amount,
+          currency: orderData.currency,
+          name: "RozoMeal",
+          description: "Food Order Payment",
+          order_id: orderData.id,
+          handler: async (response: any) => {
+            setTransactionId(response.razorpay_order_id);
+            const status = await checkRazorpayOrderStatus(
+              response.razorpay_order_id,
+              response.razorpay_payment_id
+            );
+            try {
+              await placeOrder(
+                { ...orderPayload, paymentMethod: "online" },
+                coords.lat,
+                coords.lng,
+                response.razorpay_order_id
+              );
+
+              if (status.includes("Successful")) {
+                setShowSuccessDialog(true);
+                clearCart();
+              } else {
+                toast.error("Payment not verified, please contact support.");
+              }
+            } catch (err) {
+              console.error("❌ Order placement failed:", err);
+              toast.error("Payment succeeded but order not saved.");
+            }
+          },
+          prefill: {
+            name: shipping.name,
+            email: shipping.email,
+            contact: shipping.phone,
+          },
+          theme: { color: "#FFD369" },
+        };
+
+        const rzp = new (window as any).Razorpay(options);
+        rzp.on("payment.failed", (response: any) => {
+          console.error("Payment failed:", response.error);
+          toast.error("Payment failed. Please try again.");
+        });
+
+        rzp.open();
+      }
     } catch (err: any) {
-      toast.error(err.message || "Failed to place order");
+      console.error("Order error:", err);
+      toast.error(err.message || "Failed to process order");
     } finally {
       setIsProcessing(false);
     }
@@ -106,34 +183,31 @@ export default function CheckoutPage({ setCurrentPage }: CheckoutPageProps) {
       toast.error("Geolocation not supported");
       return;
     }
+    setIsProcessing(true);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const { latitude, longitude } = pos.coords;
         setCoords({ lat: latitude, lng: longitude });
         toast.success("Location fetched successfully!");
+        setIsProcessing(false);
       },
-      () => toast.error("Unable to fetch location")
+      () => {
+        toast.error("Unable to fetch location");
+        setIsProcessing(false);
+      }
     );
   };
 
   const handleStateChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
     setShipping({ ...shipping, state: value });
-    if (value !== "Bihar") {
-      setLocationWarning("⚠️ We currently deliver only in Bihar (Patna).");
-    } else {
-      setLocationWarning("");
-    }
+    setLocationWarning(value !== "Bihar" ? "⚠️ We currently deliver only in Bihar (Patna)." : "");
   };
 
   const handleCityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
     setShipping({ ...shipping, city: value });
-    if (value !== "Patna") {
-      setLocationWarning("⚠️ We currently deliver only in Patna, Bihar.");
-    } else {
-      setLocationWarning("");
-    }
+    setLocationWarning(value !== "Patna" ? "⚠️ We currently deliver only in Patna, Bihar." : "");
   };
 
   const isOrderDisabled =
@@ -145,45 +219,40 @@ export default function CheckoutPage({ setCurrentPage }: CheckoutPageProps) {
     shipping.state !== "Bihar" ||
     shipping.city !== "Patna";
 
-  return (
-    <div className="min-h-screen bg-[#1a0f1a] flex items-center justify-center py-12 px-4">
-      <div className="bg-[#2C1E4A]/90 backdrop-blur-md p-8 rounded-2xl w-full max-w-2xl border border-[#FFD369]/30 shadow-xl shadow-black/40">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          
-          <h2 className="text-3xl font-bold text-[#FFD369] text-center flex-1">
-            Checkout
-          </h2>
-        </div>
+  const handleSuccessClose = () => {
+    setShowSuccessDialog(false);
+    setCurrentPage("orders");
+  };
 
-        {/* Shipping Info */}
+  return (
+    <div className="relative min-h-screen bg-[#1a0f1a] flex items-center justify-center py-12 px-4">
+      {/* 🔄 Loader Overlay */}
+      {isProcessing && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm z-50">
+          <div className="w-12 h-12 border-4 border-[#FFD369] border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-[#FFD369] mt-3 font-medium">Processing...</p>
+        </div>
+      )}
+
+      <div className="bg-[#2C1E4A]/90 backdrop-blur-md p-8 rounded-2xl w-full max-w-2xl border border-[#FFD369]/30 shadow-xl shadow-black/40 relative z-10">
+        <h2 className="text-3xl font-bold text-[#FFD369] text-center mb-8">Checkout</h2>
+
+        {/* Shipping Form */}
         <div className="space-y-5 mb-8">
-          <h3 className="text-xl font-semibold text-[#FFD369]">
-            Shipping Information
-          </h3>
+          <h3 className="text-xl font-semibold text-[#FFD369]">Shipping Information</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {["name", "email", "phone", "address", "pincode"].map((field) => (
               <div key={field} className="flex flex-col">
                 <Label className="capitalize text-white/80 mb-1">{field}</Label>
                 <Input
-  value={
-    // Check shipping first, then suser safely, fallback to empty string
-    shipping[field as keyof typeof shipping] || suser?.[field as keyof User] || ""
-  }
-  onChange={(e) =>
-    setShipping({
-      ...shipping,
-      [field]: e.target.value,
-    })
-  }
-  className="bg-[#1a0f1a] border border-[#FFD369]/30 text-white placeholder:text-gray-400 rounded-md p-2"
-  placeholder={`Enter ${field}`}
-/>
-
+                  value={shipping[field as keyof typeof shipping] || ""}
+                  onChange={(e) => setShipping({ ...shipping, [field]: e.target.value })}
+                  className="bg-[#1a0f1a] border border-[#FFD369]/30 text-white rounded-md p-2"
+                  placeholder={`Enter ${field}`}
+                />
               </div>
             ))}
 
-            {/* State */}
             <div className="flex flex-col">
               <Label className="text-white/80 mb-1">State</Label>
               <select
@@ -197,7 +266,6 @@ export default function CheckoutPage({ setCurrentPage }: CheckoutPageProps) {
               </select>
             </div>
 
-            {/* City */}
             <div className="flex flex-col">
               <Label className="text-white/80 mb-1">City</Label>
               <select
@@ -211,27 +279,22 @@ export default function CheckoutPage({ setCurrentPage }: CheckoutPageProps) {
               </select>
             </div>
           </div>
-
           {locationWarning && (
-            <p className="text-red-400 text-sm mt-2 text-center">
-              {locationWarning}
-            </p>
+            <p className="text-red-400 text-sm mt-2 text-center">{locationWarning}</p>
           )}
         </div>
 
         {/* Payment Method */}
         <div className="mb-8 space-y-3">
-          <h3 className="text-xl font-semibold text-[#FFD369]">
-            Payment Method
-          </h3>
+          <h3 className="text-xl font-semibold text-[#FFD369]">Payment Method</h3>
           <div className="flex flex-col md:flex-row gap-4">
             <label className="flex items-center space-x-2 text-white">
               <input
                 type="radio"
                 name="payment"
                 value="cod"
-                checked={paymentMethod === "cod"}
-                onChange={(e) => setPaymentMethod(e.target.value)}
+                checked={modeOfPayment === "cod"}
+                onChange={(e) => setModeOfPayment(e.target.value)}
               />
               <span>Cash on Delivery</span>
             </label>
@@ -240,8 +303,8 @@ export default function CheckoutPage({ setCurrentPage }: CheckoutPageProps) {
                 type="radio"
                 name="payment"
                 value="online"
-                checked={paymentMethod === "online"}
-                onChange={(e) => setPaymentMethod(e.target.value)}
+                checked={modeOfPayment === "online"}
+                onChange={(e) => setModeOfPayment(e.target.value)}
               />
               <span>Online Payment</span>
             </label>
@@ -250,24 +313,21 @@ export default function CheckoutPage({ setCurrentPage }: CheckoutPageProps) {
 
         {/* Location */}
         <div className="mb-8 space-y-2">
-  <h3 className="text-xl font-semibold text-[#FFD369]">Location</h3>
-  <Button
-    onClick={fetchLocation}
-    className="w-full bg-[#4B1C3F] text-[#FFD369] hover:bg-[#FFD369]/20"
-  >
-    📍 Share My Location
-  </Button>
-  <p className="text-white/70 text-sm mt-1">
-    Please share your location — it will help our delivery partner reach you faster!
-  </p>
-</div>
-
+          <h3 className="text-xl font-semibold text-[#FFD369]">Location</h3>
+          <Button
+            onClick={fetchLocation}
+            className="w-full bg-[#4B1C3F] text-[#FFD369] hover:bg-[#FFD369]/20"
+          >
+            📍 Share My Location
+          </Button>
+          <p className="text-white/70 text-sm mt-1">
+            Please share your location — it will help our delivery partner reach you faster!
+          </p>
+        </div>
 
         {/* Summary */}
         <div className="bg-[#1a0f1a] border border-[#FFD369]/30 rounded-xl p-5 mb-8">
-          <h3 className="text-lg font-semibold text-[#FFD369] mb-3">
-            Order Summary
-          </h3>
+          <h3 className="text-lg font-semibold text-[#FFD369] mb-3">Order Summary</h3>
           <div className="space-y-2 text-white">
             <div className="flex justify-between">
               <span>Subtotal</span>
@@ -284,21 +344,36 @@ export default function CheckoutPage({ setCurrentPage }: CheckoutPageProps) {
           </div>
         </div>
 
-        {/* Buttons */}
+        {/* Place Order Button */}
         <Button
           onClick={handlePlaceOrder}
-          disabled={isOrderDisabled}
           className={`w-full py-3 text-lg font-semibold ${
             isOrderDisabled
               ? "bg-gray-500 cursor-not-allowed"
               : "bg-[#FFD369] text-[#1a0f1a] hover:bg-[#ffcb47]"
           }`}
         >
-          {isProcessing
-            ? "Processing..."
-            : `Place Order ₹${total.toFixed(2)}`}
+          {isProcessing ? "Processing..." : `Place Order ₹${total.toFixed(2)}`}
         </Button>
       </div>
+
+      {/* ✅ Success Dialog */}
+      <Dialog open={showSuccessDialog} onOpenChange={handleSuccessClose}>
+        <DialogContent className="bg-[#2C1E4A] border border-[#FFD369]/50 text-center">
+          <DialogHeader>
+            <DialogTitle className="text-[#FFD369] text-2xl">🎉 Order Placed!</DialogTitle>
+            <DialogDescription className="text-white mt-2">
+              Your order has been placed successfully. Thank you for choosing <b>RozoMeal!</b>
+            </DialogDescription>
+          </DialogHeader>
+          <Button
+            onClick={handleSuccessClose}
+            className="mt-4 bg-[#FFD369] text-[#1a0f1a] hover:bg-[#ffcb47]"
+          >
+            View My Orders
+          </Button>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
