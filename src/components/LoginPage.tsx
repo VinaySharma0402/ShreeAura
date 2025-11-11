@@ -9,6 +9,7 @@ import { Checkbox } from './ui/checkbox';
 import { Separator } from './ui/separator';
 import { toast } from 'sonner';
 import { loginCustomer } from './services/auth';
+import { ImageWithFallback } from './figma/ImageWithFallback';
 
 interface LoginPageProps {
   setCurrentPage: (page: string) => void;
@@ -82,11 +83,20 @@ export default function LoginPage({ setCurrentPage }: LoginPageProps) {
 
       <motion.div variants={containerVariants} initial="hidden" animate="visible" className="relative w-full max-w-md z-10">
         <motion.div variants={itemVariants} className="text-center mb-8">
-          <motion.div animate={{ rotate: [0, 5, -5, 0] }} transition={{ duration: 2, repeat: Infinity }} className="inline-block">
-            <Sparkles className="w-12 h-12 text-[#FFD369] mx-auto mb-4" />
-          </motion.div>
-          <h1 className="text-4xl font-bold text-[#FFD369] mb-2">LuxeBeauty</h1>
-          <p className="text-white/80">Welcome back to luxury beauty</p>
+          <div className="flex items-center justify-center">
+  
+            <ImageWithFallback
+              src="/logo.png"
+               className="w-30 h-30 text-[#FFD369]"
+                 />
+  
+
+                  <h1 className="text-4xl font-bold text-[#FFD369]">
+                             Shree Aura
+                                     </h1>
+                      </div>
+
+          <p className="text-white/80">Welcome back to Shree Aura</p>
         </motion.div>
 
         <Card className="bg-white/10 backdrop-blur-lg border-[#FFD369]/20 shadow-2xl">
@@ -173,23 +183,7 @@ export default function LoginPage({ setCurrentPage }: LoginPageProps) {
               </motion.div>
             </form>
 
-            <motion.div variants={itemVariants} className="space-y-4">
-              <div className="flex items-center space-x-4">
-                <Separator className="flex-1 bg-white/20" />
-                <span className="text-white/60 text-sm">or continue with</span>
-                <Separator className="flex-1 bg-white/20" />
-              </div>
-
-              <div className="grid grid-cols-3 gap-3">
-                {socialButtons.map((social) => (
-                  <motion.div key={social.name} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                    <Button variant="outline" className={`${social.color} border-none text-white w-full`}>
-                      <social.icon className="w-4 h-4" />
-                    </Button>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
+            
 
             <motion.div variants={itemVariants} className="text-center pt-4 border-t border-[#FFD369]/20">
               <p className="text-white/70">

@@ -28,6 +28,7 @@ export default function Header({ setCurrentPage }: HeaderProps) {
   const [user, setUser] = useState<TokenPayload["User"] | null>(null);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false); // ✅ added loader state
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { getCartCount } = useCart();
 
@@ -79,12 +80,40 @@ export default function Header({ setCurrentPage }: HeaderProps) {
     };
   }, []);
 
-  const logout = () => {
-    localStorage.removeItem("token");
+  // ✅ Updated logout function with loader + clear all storage
+  const logout = async () => {
+    setIsLoggingOut(true);
+    await new Promise((resolve) => setTimeout(resolve, 1000)); // loader for 1s
+    localStorage.clear();
+    sessionStorage.clear();
     setUser(null);
     setCurrentPage("home");
+    setIsLoggingOut(false);
   };
 
+  // ✅ Loader overlay
+  if (isLoggingOut) {
+    return (
+      <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm">
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.3 }}
+          className="w-14 h-14 border-4 border-[#FFD369] border-t-transparent rounded-full animate-spin"
+        />
+        <motion.p
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="text-[#FFD369] mt-6 text-lg font-medium"
+        >
+          Logging out...
+        </motion.p>
+      </div>
+    );
+  }
+
+  // ✅ everything else below is unchanged
   return (
     <motion.header
       initial={{ y: -80, opacity: 0 }}
@@ -185,31 +214,12 @@ export default function Header({ setCurrentPage }: HeaderProps) {
               <AnimatePresence>
                 {showDropdown && (
                   <motion.div
-  initial={{ opacity: 0, y: -10 }}
-  animate={{ opacity: 1, y: 0 }}
-  exit={{ opacity: 0, y: -10 }}
-  transition={{ duration: 0.2 }}
- className="
-  absolute 
-  top-12 
-  left-1/2 
-  -translate-x-1/2 
-  md:left-auto 
-  md:right-0 
-  md:translate-x-0 
-  bg-[rgba(33,21,57,0.95)] 
-  border border-[rgba(255,211,105,0.3)] 
-  rounded-lg 
-  shadow-lg 
-  w-[160px] 
-  md:w-[180px]
-  backdrop-blur-md 
-  overflow-hidden 
-  z-50
-"
-
->
-
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute top-12 left-1/2 -translate-x-1/2 md:left-auto md:right-0 md:translate-x-0 bg-[rgba(33,21,57,0.95)] border border-[rgba(255,211,105,0.3)] rounded-lg shadow-lg w-[160px] md:w-[180px] backdrop-blur-md overflow-hidden z-50"
+                  >
                     <button
                       className="w-full text-left px-4 py-3 text-[#FFD369] hover:bg-[rgba(255,211,105,0.1)] transition-colors"
                       onClick={() => setCurrentPage("profile")}
