@@ -9,6 +9,15 @@ interface FeaturedProductsProps {
   ) => void;
 }
 
+interface NameCard {
+  id: string | number;
+  name: string;
+  image: string;
+}
+
+const CACHE_KEY = "shop_by_name_cache";
+const CACHE_DURATION_MS = 60 * 60 * 1000; // 1 hour
+
 const AnimatedSection = ({ children, delay = 0 }: any) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-50px" });
@@ -26,12 +35,6 @@ const AnimatedSection = ({ children, delay = 0 }: any) => {
   );
 };
 
-interface NameCard {
-  id: string | number;
-  name: string;
-  image: string;
-}
-
 export default function ShopByName({ setCurrentPage }: FeaturedProductsProps) {
   const [names, setNames] = useState<NameCard[]>([]);
   const [loading, setLoading] = useState(true);
@@ -45,14 +48,36 @@ export default function ShopByName({ setCurrentPage }: FeaturedProductsProps) {
   useEffect(() => {
     const fetchShopByName = async () => {
       try {
+        // Check local cache first
+        const cached = localStorage.getItem(CACHE_KEY);
+        if (cached) {
+          const { data, timestamp } = JSON.parse(cached);
+          const age = Date.now() - timestamp;
+
+          // Use cache if it's still valid
+          if (age < CACHE_DURATION_MS) {
+            setNames(data);
+            setLoading(false);
+            return;
+          }
+        }
+
+        // Otherwise fetch new data
         const res = await HomePageApi.getShopByName();
         setNames(res.data);
+
+        // Save to local storage
+        localStorage.setItem(
+          CACHE_KEY,
+          JSON.stringify({ data: res.data, timestamp: Date.now() })
+        );
       } catch (err) {
         console.error("Error fetching shop by name:", err);
       } finally {
         setLoading(false);
       }
     };
+
     fetchShopByName();
   }, []);
 

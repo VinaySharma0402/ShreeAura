@@ -5,29 +5,54 @@ import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
-import { HomePageApi } from "./services/homepage"; // ✅ import your API
+import { HomePageApi } from "./services/homepage";
+
+const CACHE_KEY = "cachedBlogs";
+const CACHE_DURATION = 1000 * 60 * 10; // ✅ 10 minutes cache
 
 export default function BlogPage() {
   const [blogs, setBlogs] = useState<any[]>([]);
   const [selectedPost, setSelectedPost] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Fetch blogs
+  // ✅ Fetch blogs with cache
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
+        const cached = localStorage.getItem(CACHE_KEY);
+
+        if (cached) {
+          const { data, timestamp } = JSON.parse(cached);
+
+          // if cache is fresh → use it
+          if (Date.now() - timestamp < CACHE_DURATION) {
+            console.log("✅ Using cached blogs");
+            setBlogs(data);
+            setLoading(false);
+            return;
+          }
+        }
+
+        console.log("🌐 Fetching blogs from API...");
         const response = await HomePageApi.getAllBlogs();
-        setBlogs(response.data || []);
+        const freshData = response.data || [];
+
+        setBlogs(freshData);
+        localStorage.setItem(
+          CACHE_KEY,
+          JSON.stringify({ data: freshData, timestamp: Date.now() })
+        );
       } catch (error) {
         console.error("Error fetching blogs:", error);
       } finally {
         setLoading(false);
       }
     };
+
     fetchBlogs();
   }, []);
 
-  // 🧭 Hide the scroll indicator when scrolled to bottom
+  // 🧭 Scroll indicator logic remains unchanged
   useEffect(() => {
     if (!selectedPost) return;
 
@@ -42,7 +67,6 @@ export default function BlogPage() {
       const atBottom =
         scrollContainer.scrollTop + scrollContainer.clientHeight >=
         scrollContainer.scrollHeight - 10;
-
       indicator.style.opacity = atBottom ? "0" : "1";
     };
 
@@ -54,7 +78,7 @@ export default function BlogPage() {
 
   return (
     <div className="min-h-screen bg-[#12091E] text-white relative overflow-hidden">
-      {/* Soft Gradient Background Glow */}
+      {/* Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-purple-900/40 via-pink-700/30 to-indigo-900/40 blur-3xl -z-10" />
 
       {/* Hero Section */}
@@ -77,7 +101,7 @@ export default function BlogPage() {
         </motion.p>
       </section>
 
-      {/* Loading State */}
+      {/* Loading / Empty State */}
       {loading ? (
         <p className="text-center text-white/70 text-lg pb-20">
           Loading blogs...
@@ -133,17 +157,15 @@ export default function BlogPage() {
         </section>
       )}
 
-      {/* Dialog for Full Blog Content */}
+      {/* Blog Modal */}
       <Dialog open={!!selectedPost} onOpenChange={() => setSelectedPost(null)}>
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden bg-[#1E1432] text-white border border-[#FFD369]/20 rounded-2xl p-0 flex flex-col">
-          {/* Header */}
           <DialogHeader className="p-6 pb-3 border-b border-[#FFD369]/20">
             <DialogTitle className="text-2xl font-bold text-[#FFD369]">
               {selectedPost?.title}
             </DialogTitle>
           </DialogHeader>
 
-          {/* Scrollable Content */}
           <div className="relative flex-1 overflow-y-auto px-6 py-4 space-y-5 scrollable-blog-content">
             {selectedPost && (
               <>
@@ -154,14 +176,13 @@ export default function BlogPage() {
                     className="w-full h-64 object-cover rounded-lg"
                   />
                 </div>
-
                 <p className="text-white/80 leading-relaxed whitespace-pre-line text-sm sm:text-base">
                   {selectedPost.description}
                 </p>
               </>
             )}
 
-            {/* 🔽 Scroll Down Indicator */}
+            {/* Scroll Indicator */}
             <div
               id="scroll-indicator"
               className="absolute bottom-4 left-1/2 -translate-x-1/2 text-[#FFD369]/70 transition-opacity duration-500 animate-bounce"
