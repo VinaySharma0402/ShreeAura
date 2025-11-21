@@ -151,7 +151,7 @@ useEffect(() => {
         const res = await HomePageApi.searchByPrice(qPrice);
         results = res.data;
       }
-
+      console.log("Fetched products:", results);
       setAllProducts(results || []);
       setProducts(results || []);
     } catch (err) {
@@ -184,7 +184,7 @@ useEffect(() => {
 
     const [minPrice, maxPrice] = filters.priceRange;
     filtered = filtered.filter(
-      (p) => p.price >= minPrice && p.price <= maxPrice
+      (p) => p.sellingPrice >= minPrice && p.sellingPrice <= maxPrice
     );
 
     if (filters.rating > 0) {

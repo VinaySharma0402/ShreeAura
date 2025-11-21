@@ -6,12 +6,14 @@ import { Badge } from "./ui/badge";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { toast } from "sonner";
 
+
 export interface Product {
   productId: string;
   name: string;
   brand?: string;
-  price: number;
-  originalPrice?: number;
+  sellingPrice: number;
+  mrp: number;
+  //originalPrice?: number;
   image: string;
   rating: number;
   reviews: number;
@@ -51,6 +53,10 @@ export default function ProductCard({
   };
 
   const isGoToCart = buttonText?.toLowerCase().includes("go to cart");
+const discount =
+  product.mrp > product.sellingPrice
+    ? Math.round(((product.mrp - product.sellingPrice) / product.mrp) * 100)
+    : 0;
 
   return (
     <motion.div
@@ -125,19 +131,26 @@ export default function ProductCard({
         >
           {product.name}
         </h3>
-
+        <h5>{product.brand}</h5>
         <p className="text-white/70 text-sm line-clamp-2">{product.description}</p>
 
         {/* Price */}
         <div className="flex items-center space-x-2">
           <span className="text-[#FFD369] font-bold text-base">
-            ₹{product.price.toFixed(2)}
+            ₹{product.sellingPrice.toFixed(2)}
           </span>
-          {product.originalPrice && product.originalPrice > product.price && (
-            <span className="text-white/50 line-through text-xs">
-              ₹{product.originalPrice.toFixed(2)}
+          
+          {product.mrp > product.sellingPrice && (
+            <span className="text-white/50 text-sm line-through">
+              ₹{product.mrp.toFixed(2)}
             </span>
           )}
+          {discount > 0 && (
+  <span className="text-green-400 text-sm font-semibold">
+    {discount}% OFF
+  </span>
+)}
+
         </div>
 
         {/* Add to Cart / Go to Cart Button */}
