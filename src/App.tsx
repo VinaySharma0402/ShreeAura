@@ -5,28 +5,36 @@ import { Toaster } from "./components/ui/sonner";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import HomePage from "./components/HomePage";
-
 import CartPage from "./components/CartPage";
 import LoginPage from "./components/LoginPage";
 import RegisterPage from "./components/RegisterPage";
 import ProfilePage from "./components/ProfilePage";
 import OrdersPage from "./components/OrdersPage";
 import SearchPage from "./components/SearchPage";
+import CheckoutPage from "./components/CheckoutPage";
 
 import { AuthProvider } from "./contexts/AuthContext";
 import { CartProvider } from "./contexts/CartContext";
-import CheckoutPage from "./components/CheckoutPage";
+
+import ProductDetails from "./components/ProductDetails";
+import Team from "./components/Team";
 
 function AnimatedRoutes() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // ✅ Same function name — now using navigate()
+  // ⭐ FIXED setCurrentPage — product navigation now works correctly
   const setCurrentPage = (
     page: string,
-    options?: { category?: string; price?: number; brand?: string; name?: string }
+    options?: {
+      id?: string;
+      product?: any;
+      category?: string;
+      price?: number;
+      brand?: string;
+      name?: string;
+    }
   ) => {
-    console.log("➡️ Navigating:", page, "with options:", options);
 
     const params = new URLSearchParams();
     if (options?.category) params.append("category", options.category);
@@ -38,29 +46,45 @@ function AnimatedRoutes() {
       case "home":
         navigate("/");
         break;
+
+      // ⭐ Correct product detail navigation
       case "product-detail":
-        navigate("/product-detail");
+        if (!options?.id) return console.error("❌ product ID missing!");
+
+        navigate(`/product/${options.id}`, {
+          state: options.product,
+        });
         break;
+
       case "cart":
         navigate("/cart");
         break;
+
       case "login":
         navigate("/login");
         break;
+
       case "register":
         navigate("/register");
         break;
+
       case "profile":
         navigate("/profile");
         break;
+
       case "orders":
         navigate("/orders");
         break;
+
       case "search":
         navigate(`/search?${params.toString()}`);
         break;
+
       case "checkout":
         navigate("/checkout");
+        break;
+      case "team":
+        navigate("/team"); 
         break; 
       default:
         navigate("/");
@@ -68,6 +92,7 @@ function AnimatedRoutes() {
     }
   };
 
+  // Animation settings
   const pageVariants = {
     initial: { opacity: 0, y: 20, scale: 0.98 },
     in: { opacity: 1, y: 0, scale: 1 },
@@ -85,7 +110,6 @@ function AnimatedRoutes() {
 
   return (
     <div className="min-h-screen bg-[#1a0f1a]">
-      {/* ✅ Header only if not login/register */}
       {!isSpecialPage && (
         <Header currentPage={location.pathname} setCurrentPage={setCurrentPage} />
       )}
@@ -100,56 +124,48 @@ function AnimatedRoutes() {
           variants={pageVariants}
           transition={pageTransition}
         >
-          <Routes location={location} key={location.pathname}>
-            <Route
-              path="/"
-              element={<HomePage setCurrentPage={setCurrentPage} />}
-            />
-            
-            <Route
-              path="/cart"
-              element={<CartPage setCurrentPage={setCurrentPage} />}
-            />
-            <Route
-              path="/login"
-              element={<LoginPage setCurrentPage={setCurrentPage} />}
-            />
-            <Route
-              path="/register"
-              element={<RegisterPage setCurrentPage={setCurrentPage} />}
-            />
-            <Route
-              path="/profile"
-              element={<ProfilePage setCurrentPage={setCurrentPage} />}
-            />
-            <Route
-              path="/orders"
-              element={<OrdersPage setCurrentPage={setCurrentPage} />}
-            />
-            <Route path="/checkout" element={<CheckoutPage setCurrentPage={setCurrentPage}></CheckoutPage>}></Route>
+          <Routes location={location}>
+            <Route path="/" element={<HomePage setCurrentPage={setCurrentPage} />} />
+
+            <Route path="/cart" element={<CartPage setCurrentPage={setCurrentPage} />} />
+            <Route path="/login" element={<LoginPage setCurrentPage={setCurrentPage} />} />
+            <Route path="/register" element={<RegisterPage setCurrentPage={setCurrentPage} />} />
+            <Route path="/profile" element={<ProfilePage setCurrentPage={setCurrentPage} />} />
+            <Route path="/orders" element={<OrdersPage setCurrentPage={setCurrentPage} />} />
+
+            {/* ⭐ FIXED product detail route */}
+            <Route path="/product/:productId" element={<ProductDetails />} />
+
             <Route
               path="/search"
               element={
                 <SearchPage
                   setCurrentPage={setCurrentPage}
                   setSelectedProduct={(product) => {
-                    console.log("Selected product:", product);
-                    setCurrentPage("product-detail");
-                  }}
-                  onAddToCart={(product, quantity = 1) => {
-                    console.log("Added to cart:", product, "Quantity:", quantity);
+                    setCurrentPage("product-detail", {
+                      id: product.productId,
+                      product,
+                    });
                   }}
                 />
               }
+            />
+
+            <Route
+              path="/checkout"
+              element={<CheckoutPage setCurrentPage={setCurrentPage} />}
+            />
+            <Route
+              path="/team"
+              element={<Team />}
             />
           </Routes>
         </motion.main>
       </AnimatePresence>
 
-      {/* ✅ Footer only if not login/register */}
       {!isSpecialPage && <Footer />}
 
-      {/* ✅ Back to Home button on login/register */}
+      {/* Back Button */}
       {isSpecialPage && (
         <div className="fixed top-4 left-4 z-50">
           <button

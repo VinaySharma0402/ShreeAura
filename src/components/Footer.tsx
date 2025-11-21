@@ -4,8 +4,10 @@ import {
   MapPin,
   Instagram,
   Facebook,
-  Twitter,
-  Youtube,
+
+  
+  Linkedin,
+
 } from "lucide-react";
 import { motion } from "motion/react";
 
@@ -37,16 +39,28 @@ export default function Footer() {
               products that enhance your natural glow and confidence.
             </p>
             <div className="flex space-x-5 pt-3">
-              {[Instagram, Facebook, Twitter, Youtube].map((Icon, i) => (
-                <motion.div
-                  key={i}
-                  whileHover={{ scale: 1.2, rotate: 5 }}
-                  className="bg-white/10 p-2 rounded-full hover:bg-[#FFD369]/30 transition-colors cursor-pointer"
-                >
-                  <Icon className="w-5 h-5 text-[#FFD369]" />
-                </motion.div>
-              ))}
-            </div>
+  {[
+    { Icon: Instagram, url: "https://www.instagram.com/shreeaura.fashion" },
+    { Icon: Facebook, url: "https://www.facebook.com/profile.php?id=61583263783646" },
+    
+    { Icon: Linkedin, url: "https://www.linkedin.com/jobs" },
+  ].map(({ Icon, url }, i) => (
+    <a
+      key={i}
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <motion.div
+        whileHover={{ scale: 1.2, rotate: 5 }}
+        className="bg-white/10 p-2 rounded-full hover:bg-[#FFD369]/30 transition-colors cursor-pointer"
+      >
+        <Icon className="w-5 h-5 text-[#FFD369]" />
+      </motion.div>
+    </a>
+  ))}
+</div>
+
           </div>
 
           {/* Quick Links */}
@@ -128,7 +142,7 @@ export default function Footer() {
           </div>
           <div className="flex items-center space-x-2 justify-center md:justify-start">
             <Mail className="w-4 h-4 text-[#FFD369]" />
-            <span>Shreeaura.fashion@gmail.com</span>
+            <span>support@shreeaura.in</span>
           </div>
           <div className="flex items-center space-x-2 justify-center md:justify-start">
             <MapPin className="w-4 h-4 text-[#FFD369]" />
@@ -148,6 +162,12 @@ export default function Footer() {
         <div className="container mx-auto px-4 py-5 flex flex-col md:flex-row items-center justify-between text-sm text-[#FFD369]/80 space-y-3 md:space-y-0">
           <div>© 2025 Shreeaura.in. All rights reserved.</div>
           <div className="flex space-x-5">
+            <a
+              href="team"
+              className="hover:text-white transition-colors duration-300"
+            >
+              Team
+            </a>
             <a
               href="/privacy.html"
               className="hover:text-white transition-colors duration-300"

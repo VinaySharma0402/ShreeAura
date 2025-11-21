@@ -6,20 +6,17 @@ import { Badge } from "./ui/badge";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { toast } from "sonner";
 
-
 export interface Product {
   productId: string;
   name: string;
   brand?: string;
   sellingPrice: number;
   mrp: number;
-  //originalPrice?: number;
   image: string;
   rating: number;
   reviews: number;
   badge?: string;
   stock?: number;
-  //available?: boolean;
   imageUrl?: string;
   category?: string;
   description?: string;
@@ -31,6 +28,7 @@ export interface ProductCardProps {
   onAddToWishlist?: (product: Product) => void;
   onClick?: (product: Product) => void;
   buttonText?: string;
+  onBuyNow?: (product: Product) => void; // optional buy now callback
 }
 
 export default function ProductCard({
@@ -39,6 +37,7 @@ export default function ProductCard({
   onAddToWishlist,
   onClick,
   buttonText,
+  onBuyNow,
 }: ProductCardProps) {
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -52,11 +51,29 @@ export default function ProductCard({
     toast.success(`${product.name} added to wishlist!`);
   };
 
+  const handleBuyNow = (e: React.MouseEvent) => {
+  e.stopPropagation();
+
+  if (product.stock !== undefined && product.stock === 0) {
+    toast.error("This product is out of stock!");
+    return;
+  }
+
+  // 1️⃣ Add to cart
+  onAddToCart?.(product);
+
+  // 2️⃣ Redirect to cart if parent passed function
+  onBuyNow?.(product);
+
+  // 3️⃣ Toast message
+  toast.success(`Redirecting to checkout for ${product.name}...`);
+};
+
   const isGoToCart = buttonText?.toLowerCase().includes("go to cart");
-const discount =
-  product.mrp > product.sellingPrice
-    ? Math.round(((product.mrp - product.sellingPrice) / product.mrp) * 100)
-    : 0;
+  const discount =
+    product.mrp > product.sellingPrice
+      ? Math.round(((product.mrp - product.sellingPrice) / product.mrp) * 100)
+      : 0;
 
   return (
     <motion.div
@@ -91,7 +108,7 @@ const discount =
           </Badge>
         )}
 
-        {/* Wishlist Button */}
+        {/* Wishlist */}
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           whileHover={{ opacity: 1, scale: 1 }}
@@ -113,7 +130,7 @@ const discount =
           </Button>
         </motion.div>
 
-        {/* Out of Stock Overlay */}
+        {/* Out of Stock */}
         {!product.stock && (
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center rounded-xl">
             <span className="text-white text-xs font-semibold uppercase tracking-wider">
@@ -131,7 +148,8 @@ const discount =
         >
           {product.name}
         </h3>
-        <h5>{product.brand}</h5>
+
+        <h5 className="text-white/80 text-xs">{product.brand}</h5>
         <p className="text-white/70 text-sm line-clamp-2">{product.description}</p>
 
         {/* Price */}
@@ -139,45 +157,63 @@ const discount =
           <span className="text-[#FFD369] font-bold text-base">
             ₹{product.sellingPrice.toFixed(2)}
           </span>
-          
+
           {product.mrp > product.sellingPrice && (
             <span className="text-white/50 text-sm line-through">
               ₹{product.mrp.toFixed(2)}
             </span>
           )}
-          {discount > 0 && (
-  <span className="text-green-400 text-sm font-semibold">
-    {discount}% OFF
-  </span>
-)}
 
+          {discount > 0 && (
+            <span className="text-green-400 text-sm font-semibold">
+              {discount}% OFF
+            </span>
+          )}
         </div>
 
-        {/* Add to Cart / Go to Cart Button */}
-        <Button
-          className={`
-            w-full py-2 text-sm font-semibold transition-all duration-200
-            hover:shadow-lg hover:shadow-[#FFD369]/40
-            ${
-              product.stock === 0
-                ? "bg-gray-500 text-white cursor-not-allowed"
-                : isGoToCart
-                ? "bg-[#4B1C3F] text-[#FFD369] hover:bg-[#5e2450]"
-                : "bg-gradient-to-r from-[#FFD369] to-[#FFB347] text-[#1a0f1a] hover:scale-105"
-            }
-          `}
-          disabled={product.stock === 0}
-          onClick={handleAddToCart}
-        >
-          {product.stock === 0 ? (
-            "Notify Me"
-          ) : (
-            <div className="flex items-center justify-center gap-2">
-              <ShoppingBag className="w-4 h-4" />
-              {buttonText || "Add to Cart"}
-            </div>
+        {/* Buttons */}
+        <div className="space-y-2">
+          {/* Add to Cart */}
+          <Button
+            className={`
+              w-full py-2 text-sm font-semibold transition-all duration-200
+              hover:shadow-lg hover:shadow-[#FFD369]/40
+              ${
+                product.stock === 0
+                  ? "bg-gray-500 text-white cursor-not-allowed"
+                  : isGoToCart
+                  ? "bg-[#4B1C3F] text-[#FFD369] hover:bg-[#5e2450]"
+                  : "bg-gradient-to-r from-[#FFD369] to-[#FFB347] text-[#1a0f1a] hover:scale-105"
+              }
+            `}
+            disabled={product.stock === 0}
+            onClick={handleAddToCart}
+          >
+            {product.stock === 0 ? (
+              "Notify Me"
+            ) : (
+              <div className="flex items-center justify-center gap-2">
+                <ShoppingBag className="w-4 h-4" />
+                {buttonText || "Add to Cart"}
+              </div>
+            )}
+          </Button>
+
+          {/* Buy Now */}
+          {(product.stock ?? 1) > 0 && (
+            <Button
+              className="
+                w-full py-2 text-sm font-semibold 
+                bg-[#4B1C3F] text-[#FFD369]
+                hover:bg-[#5e2450] hover:shadow-lg hover:shadow-[#FFD369]/40 
+                transition-all duration-200
+              "
+              onClick={handleBuyNow}
+            >
+              Buy Now
+            </Button>
           )}
-        </Button>
+        </div>
       </div>
     </motion.div>
   );

@@ -6,7 +6,7 @@ import { Separator } from "../components/ui/separator";
 import { ImageWithFallback } from "../components/figma/ImageWithFallback";
 import { useCart } from "../contexts/CartContext";
 import { useEffect } from "react";
-import { toast } from "sonner"; // ✅ using toast for login warning
+import { toast } from "sonner";
 import { useLocation } from "react-router-dom";
 
 interface CartPageProps {
@@ -17,10 +17,16 @@ export default function CartPage({ setCurrentPage }: CartPageProps) {
   const { items, updateQuantity, removeFromCart, getCartTotal } = useCart();
   const subtotal = getCartTotal();
   const tax = subtotal * 0.18;
-  const total = subtotal + tax;
+
+  // Shipping logic
+  const baseShipping = 10;
+  const extraDeliveryCharge = subtotal < 200 ? 20 : 0;
+  const shipping = baseShipping + extraDeliveryCharge;
+
+  const total = subtotal + tax + shipping;
   const location = useLocation();
 
-  // ✅ scroll to top on page mount
+  // Scroll to top on page mount
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [location.pathname]);
@@ -94,7 +100,7 @@ export default function CartPage({ setCurrentPage }: CartPageProps) {
                       <div className="flex-1 space-y-2">
                         <h3 className="text-white font-semibold">{item.name}</h3>
                         <p className="text-[#FFD369] font-bold">
-                          ₹{item.price.toFixed(2)}
+                          ₹{item.sellingPrice.toFixed(2)}
                         </p>
                         <div className="flex items-center gap-2">
                           <Button
@@ -150,13 +156,27 @@ export default function CartPage({ setCurrentPage }: CartPageProps) {
                     <span>Tax (18%)</span>
                     <span>₹{tax.toFixed(2)}</span>
                   </div>
+                  <div className="flex justify-between">
+                    <span>Shipping</span>
+                    <span>₹{shipping.toFixed(2)}</span>
+                  </div>
                   <div className="flex justify-between font-bold text-[#FFD369] text-lg">
                     <span>Total</span>
                     <span>₹{total.toFixed(2)}</span>
                   </div>
+                  {subtotal < 200 && (
+                    <p className="text-sm text-yellow-300">
+                      Orders below ₹200 have an extra delivery charge of ₹20.
+                    </p>
+                  )}
+                  {subtotal >= 200 && (
+                    <p className="text-sm text-green-400">
+                      🎉 Orders above ₹200 get free delivery!
+                    </p>
+                  )}
                 </div>
 
-                {/* ✅ Checkout button now checks login */}
+                {/* Checkout button now checks login */}
                 <Button
                   onClick={handleProceedToCheckout}
                   className="w-full bg-[#FFD369] text-[#1a0f1a] hover:bg-[#ffcb47] py-3"

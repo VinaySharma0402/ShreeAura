@@ -5,10 +5,11 @@ import ProductCard, { type Product } from "./ProductCard";
 import { Slider } from "./ui/slider";
 import { Checkbox } from "./ui/checkbox";
 import { Separator } from "./ui/separator";
-import { Star, SearchX, Filter } from "lucide-react";
+
 import { useCart } from "../contexts/CartContext";
 import { HomePageApi } from "../components/services/homepage";
 import { motion } from "motion/react";
+import { Filter, SearchX } from "lucide-react";
 
 interface SearchPageProps {
   setCurrentPage: (page: string, options?: any) => void;
@@ -68,14 +69,7 @@ useEffect(() => {
 
   
 
-  const brandOptions = [
-    "LuxeBeauty",
-    "ColorPro",
-    "SkinLux",
-    "Elegance",
-    "FlawlessBase",
-    "GlossyBeauty",
-  ];
+  
 
   const [filters, setFilters] = useState<FilterState>({
     categories: qCategory ? [qCategory] : [],
@@ -107,17 +101,30 @@ useEffect(() => {
     setDropdownOpen(false);
   };
 
-  const clearAllFilters = () => {
-    const cleared = {
-      categories: [],
-      brands: [],
-      priceRange: [0, 200] as [number, number],
-      rating: 0,
-      inStock: false,
-    };
-    setPendingFilters(cleared);
-    setFilters(cleared);
+  const clearAllFilters = async () => {
+  const cleared = {
+    categories: [],
+    brands: [],
+    priceRange: [0, 200] as [number, number],
+    rating: 0,
+    inStock: false,
   };
+
+  // Immediately update UI filters
+  setPendingFilters(cleared);
+  setFilters(cleared);
+  setLoading(true);
+
+  try {
+    const res = await HomePageApi.getAllProducts();
+    const results: Product[] = res.data || [];
+    setAllProducts(results);
+  } catch (error) {
+    console.error("Failed to fetch products:", error);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const activeFiltersCount =
     filters.categories.length +
@@ -260,29 +267,9 @@ useEffect(() => {
         </div>
       </div>
 
-      <Separator className="bg-[#FFD369]/30" />
 
-      {/* Brand Section */}
-      <div className="space-y-3">
-        <h4 className="font-semibold text-white text-sm uppercase tracking-wide">
-          Brands
-        </h4>
-        <div className="grid grid-cols-1 gap-2">
-          {brandOptions.map((brand) => (
-            <motion.label
-              key={brand}
-              whileHover={{ x: 4 }}
-              className="flex items-center space-x-2 text-gray-300 cursor-pointer"
-            >
-              <Checkbox
-                checked={pendingFilters.brands.includes(brand)}
-                onCheckedChange={() => togglePendingFilter("brands", brand)}
-              />
-              <span>{brand}</span>
-            </motion.label>
-          ))}
-        </div>
-      </div>
+
+ 
 
       <Separator className="bg-[#FFD369]/30" />
 
@@ -306,35 +293,7 @@ useEffect(() => {
         </div>
       </div>
 
-      <Separator className="bg-[#FFD369]/30" />
-
-      {/* Rating */}
-      <div className="space-y-3">
-        <h4 className="font-semibold text-white text-sm uppercase tracking-wide">
-          Rating
-        </h4>
-        {[4, 3, 2, 1].map((r) => (
-          <motion.label
-            key={r}
-            whileHover={{ x: 4 }}
-            className="flex items-center space-x-2 text-gray-300 cursor-pointer"
-          >
-            <Checkbox
-              checked={pendingFilters.rating === r}
-              onCheckedChange={() =>
-                handlePendingChange("rating", pendingFilters.rating === r ? 0 : r)
-              }
-            />
-            <span className="flex items-center">
-              {Array.from({ length: r }).map((_, i) => (
-                <Star key={i} className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-              ))}
-              <span className="ml-1 text-sm">& Up</span>
-            </span>
-          </motion.label>
-        ))}
-      </div>
-
+      
       <Separator className="bg-[#FFD369]/30" />
 
       {/* In Stock */}
@@ -416,13 +375,26 @@ useEffect(() => {
                     transition={{ duration: 0.4 }}
                     className="w-full"
                   >
-                    <ProductCard
-                      product={product}
-                      onAddToCart={() =>
-                        !isOutOfStock && handleAddToCart(product)
-                      }
-                      buttonText={buttonText}
-                    />
+                   <ProductCard
+  product={product}
+
+  onAddToCart={() => !isOutOfStock && handleAddToCart(product)}
+
+  onBuyNow={() => {
+    handleAddToCart(product);     // Add To Cart
+    setCurrentPage("cart");       // Go To Cart Page
+  }}
+
+  onClick={() => {
+    setCurrentPage("product-detail", {
+      id: product.productId,       // send productId in param
+      product: product             // send product via location state
+    });
+  }}
+
+  buttonText={buttonText}
+/>
+
                   </motion.div>
                 );
               })}
