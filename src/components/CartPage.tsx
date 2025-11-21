@@ -8,7 +8,7 @@ import { useCart } from "../contexts/CartContext";
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { useLocation } from "react-router-dom";
-import { set } from "react-hook-form";
+
 
 interface CartPageProps {
   setCurrentPage: (page: string) => void;

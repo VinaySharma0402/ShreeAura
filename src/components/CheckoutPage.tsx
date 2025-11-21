@@ -28,7 +28,7 @@ interface CheckoutPageProps {
 }
 
 export default function CheckoutPage({ setCurrentPage }: CheckoutPageProps) {
-  const { items, getCartTotal, clearCart,cartTotal } = useCart();
+  const { items, clearCart,cartTotal } = useCart();
   const { user } = useAuth();
   const subtotal = cartTotal;
   const tax = subtotal * 0.18;
