@@ -28,10 +28,11 @@ interface CheckoutPageProps {
 }
 
 export default function CheckoutPage({ setCurrentPage }: CheckoutPageProps) {
-  const { items, getCartTotal, clearCart } = useCart();
+  const { items, getCartTotal, clearCart,cartTotal } = useCart();
   const { user } = useAuth();
-  const subtotal = getCartTotal();
+  const subtotal = cartTotal;
   const tax = subtotal * 0.18;
+  
   const total = subtotal + tax;
 
   const [isProcessing, setIsProcessing] = useState(false);
@@ -129,8 +130,8 @@ export default function CheckoutPage({ setCurrentPage }: CheckoutPageProps) {
           key: "rzp_live_RiT8Zekj3HQoUk",
           amount: orderData.amount,
           currency: orderData.currency,
-          name: "RozoMeal",
-          description: "Food Order Payment",
+          name: "Shree Aura ",
+          description: "Your Order Payment",
           order_id: orderData.id,
           handler: async (response: any) => {
             setTransactionId(response.razorpay_order_id);
@@ -139,6 +140,7 @@ export default function CheckoutPage({ setCurrentPage }: CheckoutPageProps) {
               response.razorpay_payment_id
             );
             try {
+               setIsProcessing(true);
               await placeOrder(
                 { ...orderPayload, paymentMethod: "online" },
                 coords.lat,

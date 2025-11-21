@@ -8,14 +8,16 @@ import { useCart } from "../contexts/CartContext";
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { useLocation } from "react-router-dom";
+import { set } from "react-hook-form";
 
 interface CartPageProps {
   setCurrentPage: (page: string) => void;
 }
 
 export default function CartPage({ setCurrentPage }: CartPageProps) {
-  const { items, updateQuantity, removeFromCart, getCartTotal } = useCart();
+  const { items, updateQuantity, removeFromCart, getCartTotal ,setCartTotal} = useCart();
   const subtotal = getCartTotal();
+
   const tax = subtotal * 0.18;
 
   // Shipping logic
@@ -24,8 +26,9 @@ export default function CartPage({ setCurrentPage }: CartPageProps) {
   const shipping = baseShipping + extraDeliveryCharge;
 
   const total = subtotal + tax + shipping;
+  setCartTotal(total);
   const location = useLocation();
-
+  
   // Scroll to top on page mount
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });

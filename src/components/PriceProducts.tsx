@@ -95,7 +95,8 @@ export default function PriceProducts({
             <motion.button
               whileTap={{ scale: 0.95 }}
               className="mt-6 px-6 py-2 rounded-xl bg-[#FFD369] text-[#1a0f1a] font-semibold text-sm tracking-wide transition-all duration-300 hover:bg-[#ffcc4d] hover:shadow-[0_0_15px_rgba(255,211,105,0.5)]"
-            >
+              
+           >
               View Combo
             </motion.button>
           </motion.div>

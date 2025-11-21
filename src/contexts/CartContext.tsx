@@ -39,6 +39,9 @@ interface CartContextType {
   getCartCount: () => number;
   checkout: (shippingInfo: any, paymentInfo: any) => Promise<string>;
   getOrderById: (orderId: string) => Order | undefined;
+  setCartTotal: (total: number) => void;
+cartTotal: number;
+
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -58,6 +61,7 @@ interface CartProviderProps {
 export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const [items, setItems] = useState<CartItem[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [cartTotal, setCartTotal] = useState<number>(0);
 
   // Load cart and orders from localStorage on mount
   useEffect(() => {
@@ -123,6 +127,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     return items.reduce((total, item) => total + (item.sellingPrice * item.quantity), 0);
   };
 
+
   const getCartCount = () => {
     return items.reduce((count, item) => count + item.quantity, 0);
   };
@@ -172,7 +177,9 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     getCartTotal,
     getCartCount,
     checkout,
-    getOrderById
+    getOrderById,
+    setCartTotal,
+    cartTotal,
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
