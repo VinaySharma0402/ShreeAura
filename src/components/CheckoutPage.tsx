@@ -5,6 +5,9 @@ import { Label } from "../components/ui/label";
 import { toast } from "sonner";
 import { useCart } from "../contexts/CartContext";
 import { useAuth } from "../contexts/AuthContext";
+
+import { motion, AnimatePresence } from "framer-motion";
+import Confetti from "react-confetti";
 import {
   fetchUserProfile,
   placeOrder,
@@ -156,6 +159,7 @@ export default function CheckoutPage({ setCurrentPage }: CheckoutPageProps) {
               }
             } catch (err) {
               console.error("❌ Order placement failed:", err);
+              setIsProcessing(false);
               toast.error("Payment succeeded but order not saved.");
             }
           },
@@ -177,6 +181,7 @@ export default function CheckoutPage({ setCurrentPage }: CheckoutPageProps) {
       }
     } catch (err: any) {
       console.error("Order error:", err);
+      setIsProcessing(false);
       toast.error(err.message || "Failed to process order");
     } finally {
       setIsProcessing(false);
@@ -363,21 +368,63 @@ export default function CheckoutPage({ setCurrentPage }: CheckoutPageProps) {
 
       {/* ✅ Success Dialog */}
       <Dialog open={showSuccessDialog} onOpenChange={handleSuccessClose}>
-        <DialogContent className="bg-[#2C1E4A] border border-[#FFD369]/50 text-center">
+  <AnimatePresence>
+    {showSuccessDialog && (
+      <>
+        {/* 🎉 Confetti burst */}
+        <Confetti numberOfPieces={150} recycle={false} />
+
+        <DialogContent className="bg-gradient-to-b from-[#2C1E4A] to-[#1a1230] border border-[#FFD369]/70 shadow-2xl rounded-2xl text-center p-8 animate-in fade-in zoom-in duration-300">
+
+          {/* Animated checkmark circle */}
+          <motion.div
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ type: "spring", stiffness: 120, damping: 10 }}
+            className="w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center
+              bg-[#FFD369] shadow-[0_0_25px_#FFD369]"
+          >
+            <motion.span
+              initial={{ pathLength: 0 }}
+              animate={{ pathLength: 1 }}
+              transition={{ duration: 0.8 }}
+              className="text-[#2C1E4A] text-4xl font-extrabold"
+            >
+              ✓
+            </motion.span>
+          </motion.div>
+
           <DialogHeader>
-            <DialogTitle className="text-[#FFD369] text-2xl">🎉 Order Placed!</DialogTitle>
-            <DialogDescription className="text-white mt-2">
-              Your order has been placed successfully. Thank you for choosing <b>RozoMeal!</b>
+            <DialogTitle className="text-[#FFD369] text-3xl font-bold drop-shadow-md">
+              🎉 Order Successfully Placed!
+            </DialogTitle>
+
+            <DialogDescription className="text-white/90 mt-3 text-lg leading-relaxed">
+              Thank you for choosing <b className="text-[#FFD369]">RozoMeal</b>!  
+              Your delicious order is on its way.
             </DialogDescription>
           </DialogHeader>
-          <Button
-            onClick={handleSuccessClose}
-            className="mt-4 bg-[#FFD369] text-[#1a0f1a] hover:bg-[#ffcb47]"
+
+          {/* Animated button */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
           >
-            View My Orders
-          </Button>
+            <Button
+              onClick={handleSuccessClose}
+              className="mt-6 px-6 py-3 bg-[#FFD369] text-[#1a0f1a] text-lg rounded-xl font-semibold
+                hover:bg-[#ffcb47] hover:scale-[1.05] transition-all shadow-lg"
+            >
+              View My Orders
+            </Button>
+          </motion.div>
+
         </DialogContent>
-      </Dialog>
+      </>
+    )}
+  </AnimatePresence>
+</Dialog>
     </div>
   );
 }
