@@ -31,16 +31,15 @@ export default function SearchPage({
 }: SearchPageProps) {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
-useEffect(() => {
+
+  useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [location.pathname]);
+
   const qName = params.get("name") || "";
   const qCategory = params.get("category") || "";
   const qBrand = params.get("brand") || "";
   const qPrice = params.get("price") ? Number(params.get("price")) : undefined;
-
-
-  
 
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
@@ -48,29 +47,29 @@ useEffect(() => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const { addToCart, items: cartItems } = useCart();
-// 🟢 Add this new state and effect at the top (after other useState hooks)
-const [categoryOptions, setCategoryOptions] = useState<string[]>([]);
 
-useEffect(() => {
-  const fetchCategories = async () => {
-    try {
-      const res = await HomePageApi.getCategories();
-      if (Array.isArray(res.data)) {
-        setCategoryOptions(res.data.map((c: any) => c.name));
+  // categories options for sidebar (fetched)
+  const [categoryOptions, setCategoryOptions] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await HomePageApi.getCategories();
+        if (Array.isArray(res.data)) {
+          setCategoryOptions(res.data.map((c: any) => c.name));
+        } else {
+          setCategoryOptions([]);
+        }
+      } catch (err) {
+        console.error("Error fetching categories:", err);
+        setCategoryOptions([]);
       }
-    } catch (err) {
-      console.error("Error fetching categories:", err);
-      setCategoryOptions([]);
-    }
-  };
+    };
 
-  fetchCategories();
-}, []);
+    fetchCategories();
+  }, []);
 
-  
-
-  
-
+  // Filter state
   const [filters, setFilters] = useState<FilterState>({
     categories: qCategory ? [qCategory] : [],
     brands: qBrand ? [qBrand] : [],
@@ -79,6 +78,7 @@ useEffect(() => {
     inStock: false,
   });
 
+  // Pending filters (used by UI until Apply)
   const [pendingFilters, setPendingFilters] = useState<FilterState>(filters);
 
   const handlePendingChange = (key: keyof FilterState, value: any) =>
@@ -102,29 +102,31 @@ useEffect(() => {
   };
 
   const clearAllFilters = async () => {
-  const cleared = {
-    categories: [],
-    brands: [],
-    priceRange: [0, 200] as [number, number],
-    rating: 0,
-    inStock: false,
+    const cleared: FilterState = {
+      categories: [],
+      brands: [],
+      priceRange: [0, 200],
+      rating: 0,
+      inStock: false,
+    };
+
+    setPendingFilters(cleared);
+    setFilters(cleared);
+    setLoading(true);
+
+    try {
+      const res = await HomePageApi.getAllProducts();
+      const results: Product[] = res.data || [];
+      setAllProducts(results);
+      // will trigger the filters effect to setProducts
+    } catch (error) {
+      console.error("Failed to fetch products:", error);
+      setAllProducts([]);
+      setProducts([]);
+    } finally {
+      setLoading(false);
+    }
   };
-
-  // Immediately update UI filters
-  setPendingFilters(cleared);
-  setFilters(cleared);
-  setLoading(true);
-
-  try {
-    const res = await HomePageApi.getAllProducts();
-    const results: Product[] = res.data || [];
-    setAllProducts(results);
-  } catch (error) {
-    console.error("Failed to fetch products:", error);
-  } finally {
-    setLoading(false);
-  }
-};
 
   const activeFiltersCount =
     filters.categories.length +
@@ -133,60 +135,75 @@ useEffect(() => {
     (filters.inStock ? 1 : 0) +
     (filters.priceRange[0] > 0 || filters.priceRange[1] < 200 ? 1 : 0);
 
+  // ---------- Fetch products (uses API search when qName present) ----------
   useEffect(() => {
-  const fetchAllProducts = async () => {
-    setLoading(true);
-    try {
-      const res = await HomePageApi.getAllProducts();
-      const results: Product[] = res.data || [];
-      setAllProducts(results);
+    const fetchAllProducts = async () => {
+      setLoading(true);
+      try {
+        let results: Product[] = [];
 
-      // Apply initial URL param filters
-      let filtered = [...results];
+        // Use API search when query name is present and non-empty
+        if (qName.trim() !== "") {
+          const res = await HomePageApi.searchProductsByName(qName.trim());
+          results = res.data || [];
+        } else {
+          const res = await HomePageApi.getAllProducts();
+          results = res.data || [];
+        }
 
-      if (qName) {
-        filtered = filtered.filter(p =>
-          p.name.toLowerCase().includes(qName.toLowerCase())
-        );
+        setAllProducts(results);
+
+        // Apply initial URL param filters immediately so user sees correct initial list
+        let filtered = [...results];
+
+        if (qName.trim() !== "") {
+          filtered = filtered.filter((p) =>
+            p.name.toLowerCase().includes(qName.toLowerCase())
+          );
+        }
+
+        if (qCategory) {
+          filtered = filtered.filter((p) => p.category === qCategory);
+        }
+
+        if (qBrand) {
+          filtered = filtered.filter((p) => p.brand === qBrand);
+        }
+
+        if (qPrice !== undefined) {
+          filtered = filtered.filter((p) => p.sellingPrice <= qPrice);
+        }
+
+        setProducts(filtered);
+      } catch (error) {
+        console.error("Failed to fetch products:", error);
+        setAllProducts([]);
+        setProducts([]);
+      } finally {
+        setLoading(false);
       }
-      if (qCategory) {
-        filtered = filtered.filter(p => p.category === qCategory);
-      }
-      if (qBrand) {
-        filtered = filtered.filter(p => p.brand === qBrand);
-      }
-      if (qPrice !== undefined) {
-        filtered = filtered.filter(p => p.sellingPrice <= qPrice);
-      }
+    };
 
-      setProducts(filtered);
-      // Initialize filters state for UI
-      setFilters({
-        categories: qCategory ? [qCategory] : [],
-        brands: qBrand ? [qBrand] : [],
-        priceRange: [0, qPrice ?? 200],
-        rating: 0,
-        inStock: false,
-      });
-      setPendingFilters({
-        categories: qCategory ? [qCategory] : [],
-        brands: qBrand ? [qBrand] : [],
-        priceRange: [0, qPrice ?? 200],
-        rating: 0,
-        inStock: false,
-      });
-    } catch (error) {
-      console.error(error);
-      setAllProducts([]);
-      setProducts([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+    fetchAllProducts();
+    // Intentionally depend on qName/qCategory/qBrand/qPrice (URL params)
+  }, [qName, qCategory, qBrand, qPrice]);
 
-  fetchAllProducts();
-}, [qName, qCategory, qBrand, qPrice]);
+  // ---------- Initialize filters / pendingFilters separately (do NOT live inside fetch effect) ----------
+  useEffect(() => {
+    const uiFilters: FilterState = {
+      categories: qCategory ? [qCategory] : [],
+      brands: qBrand ? [qBrand] : [],
+      priceRange: [0, qPrice ?? 200],
+      rating: 0,
+      inStock: false,
+    };
 
+    setFilters(uiFilters);
+    setPendingFilters(uiFilters);
+    // This runs when URL params change — separate from fetch effect to avoid overriding products
+  }, [qName, qCategory, qBrand, qPrice]);
+
+  // ---------- Apply the filters to allProducts (when filters or allProducts change) ----------
   useEffect(() => {
     let filtered = [...allProducts];
 
@@ -197,9 +214,7 @@ useEffect(() => {
     }
 
     if (filters.brands.length > 0) {
-      filtered = filtered.filter((p) =>
-        filters.brands.includes(p.brand || "")
-      );
+      filtered = filtered.filter((p) => filters.brands.includes(p.brand || ""));
     }
 
     const [minPrice, maxPrice] = filters.priceRange;
@@ -218,6 +233,7 @@ useEffect(() => {
     setProducts(filtered);
   }, [filters, allProducts]);
 
+  // ---------- Cart handling ----------
   const handleAddToCart = (product: Product) => {
     if (!product.stock) return;
 
@@ -230,6 +246,7 @@ useEffect(() => {
     }
   };
 
+  // ---------- Filter Sidebar component ----------
   const FilterSidebar = () => (
     <div className="space-y-5 bg-[#1a0f1a]/70 p-5 rounded-2xl border border-[#FFD369]/20 shadow-lg shadow-[#FFD369]/10 backdrop-blur-md transition-all duration-300">
       <div className="flex items-center justify-between">
@@ -280,10 +297,6 @@ useEffect(() => {
         </div>
       </div>
 
-
-
- 
-
       <Separator className="bg-[#FFD369]/30" />
 
       {/* Price Range */}
@@ -306,7 +319,6 @@ useEffect(() => {
         </div>
       </div>
 
-      
       <Separator className="bg-[#FFD369]/30" />
 
       {/* In Stock */}
@@ -320,16 +332,17 @@ useEffect(() => {
     </div>
   );
 
+  // ---------- Render ----------
   return (
     <div className="relative min-h-screen bg-gradient-to-b from-[#0f0a10] to-[#1a0f1a] text-white">
-      {/* ✅ Full Page Loader Overlay */}
+      {/* Full Page Loader Overlay */}
       {loading && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#0f0a10]/90 backdrop-blur-sm">
           <motion.div
             animate={{ rotate: 360 }}
             transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
             className="w-14 h-14 border-4 border-[#FFD369] border-t-transparent rounded-full mb-6"
-          ></motion.div>
+          />
           <p className="text-lg font-semibold text-[#FFD369] tracking-wide">
             Fetching Products...
           </p>
@@ -388,26 +401,21 @@ useEffect(() => {
                     transition={{ duration: 0.4 }}
                     className="w-full"
                   >
-                   <ProductCard
-  product={product}
-
-  onAddToCart={() => !isOutOfStock && handleAddToCart(product)}
-
-  onBuyNow={() => {
-    handleAddToCart(product);     // Add To Cart
-    setCurrentPage("cart");       // Go To Cart Page
-  }}
-
-  onClick={() => {
-    setCurrentPage("product-detail", {
-      id: product.productId,       // send productId in param
-      product: product             // send product via location state
-    });
-  }}
-
-  buttonText={buttonText}
-/>
-
+                    <ProductCard
+                      product={product}
+                      onAddToCart={() => !isOutOfStock && handleAddToCart(product)}
+                      onBuyNow={() => {
+                        handleAddToCart(product);
+                        setCurrentPage("cart");
+                      }}
+                      onClick={() =>
+                        setCurrentPage("product-detail", {
+                          id: product.productId,
+                          product: product,
+                        })
+                      }
+                      buttonText={buttonText}
+                    />
                   </motion.div>
                 );
               })}
@@ -415,67 +423,69 @@ useEffect(() => {
           ) : (
             !loading && (
               <div className="flex flex-col items-center justify-center py-24">
-  <motion.div
-    initial={{ scale: 0, rotate: -15 }}
-    animate={{ scale: 1, rotate: 0 }}
-    transition={{ type: "spring", stiffness: 200, damping: 15 }}
-    className="bg-[#2C1E4A]/40 p-6 rounded-full border border-[#FFD369]/30 shadow-lg shadow-[#FFD369]/10"
-  >
-    <SearchX className="w-14 h-14 text-[#FFD369]" />
-  </motion.div>
+                <motion.div
+                  initial={{ scale: 0, rotate: -15 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  transition={{ type: "spring", stiffness: 200, damping: 15 }}
+                  className="bg-[#2C1E4A]/40 p-6 rounded-full border border-[#FFD369]/30 shadow-lg shadow-[#FFD369]/10"
+                >
+                  <SearchX className="w-14 h-14 text-[#FFD369]" />
+                </motion.div>
 
-  <motion.h3
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    className="text-[#FFD369] font-bold text-2xl mt-6"
-  >
-    No Products Found
-  </motion.h3>
+                <motion.h3
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-[#FFD369] font-bold text-2xl mt-6"
+                >
+                  No Products Found
+                </motion.h3>
 
-  <p className="text-gray-400 text-center mt-2 max-w-sm">
-    We couldn’t find any products matching your filters.  
-    Try adjusting your selections or explore some of our popular picks below.
-  </p>
+                <p className="text-gray-400 text-center mt-2 max-w-sm">
+                  We couldn’t find any products matching your filters.
+                  Try adjusting your selections or explore some of our popular picks below.
+                </p>
 
-  {/* 🌸 Recommendation Message */}
-  <motion.p
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 1 }}
-    transition={{ delay: 0.4 }}
-    className="text-[#FFD369]/80 text-center mt-6 text-sm"
-  >
-    Still not sure? Check out what others are loving 👇
-  </motion.p>
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.4 }}
+                  className="text-[#FFD369]/80 text-center mt-6 text-sm"
+                >
+                  Still not sure? Check out what others are loving 👇
+                </motion.p>
 
-  {/* 🛍️ Recommended Search Tags */}
-  <div className="flex flex-wrap justify-center gap-3 mt-4">
-    {["Scrunchies", "Lipstick", "Perfume", "Clutcher", "Nosepin", "Bindi Set"].map(
-      (name, index) => (
-        <motion.button
-          key={index}
-          whileHover={{
-            scale: 1.1,
-            backgroundColor: "rgba(255,211,105,0.2)",
-          }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => setCurrentPage("search", { name })}
-          className="px-4 py-2 bg-[#2C1E4A]/50 border border-[#FFD369]/40 text-[#FFD369] rounded-full text-sm font-medium shadow-sm hover:shadow-md transition-all"
-        >
-          {name}
-        </motion.button>
-      )
-    )}
-  </div>
+                <div className="flex flex-wrap justify-center gap-3 mt-4">
+                  {[
+                    "Scrunchies",
+                    "Lipstick",
+                    "Perfume",
+                    "Clutcher",
+                    "Nosepin",
+                    "Bindi Set",
+                  ].map((name, index) => (
+                    <motion.button
+                      key={index}
+                      whileHover={{
+                        scale: 1.1,
+                        backgroundColor: "rgba(255,211,105,0.2)",
+                      }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => setCurrentPage("search", { name })}
+                      className="px-4 py-2 bg-[#2C1E4A]/50 border border-[#FFD369]/40 text-[#FFD369] rounded-full text-sm font-medium shadow-sm hover:shadow-md transition-all"
+                    >
+                      {name}
+                    </motion.button>
+                  ))}
+                </div>
 
-  <motion.div
-    animate={{ y: [0, -10, 0] }}
-    transition={{ repeat: Infinity, duration: 2 }}
-    className="text-5xl mt-10"
-  >
-    🛍️
-  </motion.div>
-</div>
-
+                <motion.div
+                  animate={{ y: [0, -10, 0] }}
+                  transition={{ repeat: Infinity, duration: 2 }}
+                  className="text-5xl mt-10"
+                >
+                  🛍️
+                </motion.div>
+              </div>
             )
           )}
         </main>
