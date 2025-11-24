@@ -73,7 +73,7 @@ export default function SearchPage({
   const [filters, setFilters] = useState<FilterState>({
     categories: qCategory ? [qCategory] : [],
     brands: qBrand ? [qBrand] : [],
-    priceRange: [0, qPrice ?? 200],
+    priceRange: [0, qPrice ?? 5000],
     rating: 0,
     inStock: false,
   });
@@ -105,7 +105,7 @@ export default function SearchPage({
     const cleared: FilterState = {
       categories: [],
       brands: [],
-      priceRange: [0, 200],
+      priceRange: [0, 5000],
       rating: 0,
       inStock: false,
     };
@@ -133,7 +133,7 @@ export default function SearchPage({
     filters.brands.length +
     (filters.rating > 0 ? 1 : 0) +
     (filters.inStock ? 1 : 0) +
-    (filters.priceRange[0] > 0 || filters.priceRange[1] < 200 ? 1 : 0);
+    (filters.priceRange[0] > 0 || filters.priceRange[1] < 500 ? 1 : 0);
 
   // ---------- Fetch products (uses API search when qName present) ----------
   useEffect(() => {
@@ -146,6 +146,7 @@ export default function SearchPage({
         if (qName.trim() !== "") {
           const res = await HomePageApi.searchProductsByName(qName.trim());
           results = res.data || [];
+          console.log("API search results for", qName, ":", results);
         } else {
           const res = await HomePageApi.getAllProducts();
           results = res.data || [];
@@ -193,7 +194,7 @@ export default function SearchPage({
     const uiFilters: FilterState = {
       categories: qCategory ? [qCategory] : [],
       brands: qBrand ? [qBrand] : [],
-      priceRange: [0, qPrice ?? 200],
+      priceRange: [0, qPrice ?? 5000],
       rating: 0,
       inStock: false,
     };
@@ -310,7 +311,7 @@ export default function SearchPage({
             handlePendingChange("priceRange", v as [number, number])
           }
           min={0}
-          max={200}
+          max={5000}
           step={5}
         />
         <div className="flex justify-between text-gray-400 text-sm">
