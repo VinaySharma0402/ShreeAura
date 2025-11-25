@@ -177,18 +177,16 @@ export default function Header({ setCurrentPage }: HeaderProps) {
         {/* Right Section */}
         <div className="flex items-center gap-5 relative">
           {/* Seller */}
-          <motion.button
+          <motion.a
+            href="https://seller.shreeaura.in"
+            target="_blank"
+            rel="noopener noreferrer"
             whileHover={{ scale: 1.05 }}
-            onClick={() => setCurrentPage("seller")}
             className="flex items-center gap-2 text-[#FFD369] hover:text-white transition-colors"
           >
             <Store size={20} />
-            {!isMobile && (
-              <a href="https://seller.shreeaura.in" className="text-sm">
-                Become a Seller
-              </a>
-            )}
-          </motion.button>
+            {!isMobile && <span>Become a Seller</span>}
+          </motion.a>
 
           {/* Login / User */}
           {!user ? (
