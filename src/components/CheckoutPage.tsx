@@ -130,7 +130,7 @@ export default function CheckoutPage({ setCurrentPage }: CheckoutPageProps) {
         const orderData = await createRazorpayOrder(userId!, total);
 
         const options = {
-          key: "rzp_test_RRKxLSOY1MRUrw",
+          key: "rzp_live_RiT8Zekj3HQoUk",
           amount: orderData.amount,
           currency: orderData.currency,
           name: "Shree Aura ",
