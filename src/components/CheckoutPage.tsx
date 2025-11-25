@@ -130,7 +130,7 @@ export default function CheckoutPage({ setCurrentPage }: CheckoutPageProps) {
         const orderData = await createRazorpayOrder(userId!, total);
 
         const options = {
-          key: "rzp_live_RiT8Zekj3HQoUk",
+          key: "rzp_test_RRKxLSOY1MRUrw",
           amount: orderData.amount,
           currency: orderData.currency,
           name: "Shree Aura ",
@@ -374,7 +374,7 @@ export default function CheckoutPage({ setCurrentPage }: CheckoutPageProps) {
         {/* 🎉 Confetti burst */}
         <Confetti numberOfPieces={150} recycle={false} />
 
-        <DialogContent className="bg-gradient-to-b from-[#2C1E4A] to-[#1a1230] border border-[#FFD369]/70 shadow-2xl rounded-2xl text-center p-8 animate-in fade-in zoom-in duration-300">
+        <DialogContent className="bg-linear-to-b from-[#2C1E4A] to-[#1a1230] border border-[#FFD369]/70 shadow-2xl rounded-2xl text-center p-8 animate-in fade-in zoom-in duration-300">
 
           {/* Animated checkmark circle */}
           <motion.div

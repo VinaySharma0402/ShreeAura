@@ -18,7 +18,7 @@ export default function CartPage({ setCurrentPage }: CartPageProps) {
   const { items, updateQuantity, removeFromCart, getCartTotal ,setCartTotal, cartTotal} = useCart();
   const subtotal = getCartTotal();
 
-  const tax = subtotal * 0.18;
+  const tax = subtotal * 0.10;
 
   // Shipping logic
   const baseShipping = 10;
@@ -157,20 +157,26 @@ console.log("Cart Total in CartPage:", cartTotal);
                     <span>₹{subtotal.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Tax (18%)</span>
+                    <span>Handeling charge</span>
                     <span>₹{tax.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Shipping</span>
-                    <span>₹{shipping.toFixed(2)}</span>
+                    <span>₹{baseShipping.toFixed(2)}</span>
                   </div>
+                  {subtotal < 200 && (
+                    <div className="flex justify-between">
+                      <span>Delivery Charge</span>
+                      <span>₹{extraDeliveryCharge.toFixed(2)}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between font-bold text-[#FFD369] text-lg">
                     <span>Total</span>
                     <span>₹{total.toFixed(2)}</span>
                   </div>
                   {subtotal < 200 && (
                     <p className="text-sm text-yellow-300">
-                      Orders below ₹200 have an extra delivery charge of ₹20.
+                      Get free delivery above ₹200!
                     </p>
                   )}
                   {subtotal >= 200 && (

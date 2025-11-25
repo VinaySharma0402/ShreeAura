@@ -12,6 +12,7 @@ import ProfilePage from "./components/ProfilePage";
 import OrdersPage from "./components/OrdersPage";
 import SearchPage from "./components/SearchPage";
 import CheckoutPage from "./components/CheckoutPage";
+import InvoicePage from "./components/InvoicePage";
 
 import { AuthProvider } from "./contexts/AuthContext";
 import { CartProvider } from "./contexts/CartContext";
@@ -85,7 +86,10 @@ function AnimatedRoutes() {
         break;
       case "team":
         navigate("/team"); 
-        break; 
+        break;
+      case "invoice":
+        navigate("/invoice", { state: options?.product });
+        break;
       default:
         navigate("/");
         break;
@@ -154,6 +158,10 @@ function AnimatedRoutes() {
             <Route
               path="/checkout"
               element={<CheckoutPage setCurrentPage={setCurrentPage} />}
+            />
+            <Route
+              path="/invoice"
+              element={<InvoicePage />}
             />
             <Route
               path="/team"

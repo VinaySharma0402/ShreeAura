@@ -41,6 +41,8 @@ export interface OrderResponse {
   products: {
     imageUrl: string;
     [productName: string]: number | string;
+    productPrice: number;
+    
   };
   totalPrice: number;
   address: string;

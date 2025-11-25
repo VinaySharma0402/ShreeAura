@@ -1,5 +1,6 @@
 import { useState, useEffect, type JSX } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import { useNavigate } from "react-router-dom";
 import {
   Package,
   Truck,
@@ -40,6 +41,7 @@ export default function OrdersPage({ setCurrentPage }: OrdersPageProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -119,7 +121,7 @@ export default function OrdersPage({ setCurrentPage }: OrdersPageProps) {
     
       (order.products && (order.products as any).imageUrl) || "/placeholder.png";
     const productEntries = Object.entries(order.products || {}).filter(
-      ([key]) => key !== "imageUrl"
+      ([key, value]) => typeof value === "number" && !/price/i.test(key)
     );
 
     return (
@@ -182,6 +184,9 @@ export default function OrdersPage({ setCurrentPage }: OrdersPageProps) {
                 size="sm"
                 variant="outline"
                 className="border-[#FFD369]/50 text-[#FFD369]/70 hover:bg-[#FFD369]/10"
+                onClick={() => {
+                  navigate("/invoice", { state: order });
+                }}
               >
                 <Download className="w-4 h-4 mr-2" /> Invoice
               </Button>
@@ -346,7 +351,7 @@ export default function OrdersPage({ setCurrentPage }: OrdersPageProps) {
 
               {/* 🛍️ Products Section */}
               {Object.entries(selectedOrder.products)
-                .filter(([key]) => key !== "imageUrl")
+                .filter(([key, value]) => typeof value === "number" && !/price/i.test(key))
                 .map(([name, quantity], idx) => (
                   <div
                     key={idx}
@@ -360,12 +365,12 @@ export default function OrdersPage({ setCurrentPage }: OrdersPageProps) {
                       alt={name}
                       className="w-16 h-16 object-cover rounded-md"
                     />
-                    <div className="flex-1">
-                      <h5 className="text-white font-medium">{name}</h5>
-                      <span className="text-[#FFD369]">
-                        Qty: {quantity as number}
-                      </span>
-                    </div>
+                        <div className="flex-1">
+                          <h5 className="text-white font-medium">{name}</h5>
+                          <span className="text-[#FFD369]">
+                            Qty: {quantity as number} | Price:- {selectedOrder.products.productPrice as number as any}
+                          </span>
+                        </div>
                   </div>
                 ))}
             </div>
