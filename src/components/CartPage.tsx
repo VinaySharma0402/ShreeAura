@@ -18,7 +18,7 @@ export default function CartPage({ setCurrentPage }: CartPageProps) {
   const { items, updateQuantity, removeFromCart, getCartTotal ,setCartTotal, cartTotal} = useCart();
   const subtotal = getCartTotal();
 
-  const tax = subtotal * 0.10;
+  const tax = 10;
 
   // Shipping logic
   const baseShipping = 10;

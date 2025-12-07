@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">shreeaura</string>
+    <string name="title_activity_main">shreeaura</string>
+    <string name="package_name">in.shreeaura</string>
+    <string name="custom_url_scheme">in.shreeaura</string>
+</resources>
