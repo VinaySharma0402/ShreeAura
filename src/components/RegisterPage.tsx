@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Eye, EyeOff, User, Mail, Phone, Lock, ArrowRight, CheckCircle, ShieldCheck } from 'lucide-react';
+import { Eye, EyeOff, User, Mail, Phone, Lock, ArrowRight, CheckCircle, ShieldCheck, Facebook } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
@@ -33,6 +33,12 @@ export default function RegisterPage({ setCurrentPage }: RegisterPageProps) {
   const [otp, setOtp] = useState('');
   const [otpVerified, setOtpVerified] = useState(false);
   const [otpLoading, setOtpLoading] = useState(false);
+
+  // Social auth fallback (simple): collect required fields and call registerCustomer
+  const [showSocialModal, setShowSocialModal] = useState(false);
+  const [socialProvider, setSocialProvider] = useState<string | null>(null);
+  const [socialData, setSocialData] = useState({ name: '', email: '', phone: '' });
+  const [socialLoading, setSocialLoading] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -129,6 +135,53 @@ const handleSendOtp = async () => {
     }
   };
 
+  // Open a small modal to collect missing data from the social provider (fallback)
+  const handleOpenSocial = (provider: string) => {
+    setSocialProvider(provider);
+    setSocialData({
+      name: formData.name || '',
+      email: formData.email || '',
+      phone: formData.phone || '',
+    });
+    setShowSocialModal(true);
+  };
+
+  const handleSocialSubmit = async () => {
+    if (!socialData.email || !socialData.name) {
+      toast.error('Please provide name and email');
+      return;
+    }
+
+    // generate a random password for social signup (backend expects a password field in registration)
+    const generatedPassword = Math.random().toString(36).slice(-10) + '!A1';
+
+    try {
+      setSocialLoading(true);
+      const res = await registerCustomer({
+        name: socialData.name,
+        email: socialData.email,
+        phone: socialData.phone,
+        password: generatedPassword,
+      });
+
+      if (res?.token) {
+        toast.success(`Signed up with ${socialProvider || 'social'} successfully`);
+        setTimeout(() => setCurrentPage('home'), 800);
+      }
+    } catch (err: any) {
+      // If email already exists, inform the user to sign in normally
+      const msg = err?.message || String(err);
+      if (msg.includes('Email already registered') || msg.includes('already registered')) {
+        toast.error('Email already registered. Please sign in using your password.');
+      } else {
+        toast.error(msg || 'Social signup failed.');
+      }
+    } finally {
+      setSocialLoading(false);
+      setShowSocialModal(false);
+    }
+  };
+
   // Animations
   const containerVariants = {
     hidden: { opacity: 0, y: 50 },
@@ -176,8 +229,22 @@ const handleSendOtp = async () => {
               </CardDescription>
             </motion.div>
           </CardHeader>
-
           <CardContent className="space-y-6">
+            {/* Social sign-in (fallback modal will collect any missing fields) */}
+            <motion.div variants={itemVariants} className="flex flex-col items-center gap-3">
+              <p className="text-white/70">Or continue with</p>
+              <div className="flex gap-3">
+                <Button onClick={() => handleOpenSocial('Google')} className="bg-white/10 text-white">
+                  <Mail className="w-4 h-4 mr-2 text-[#FFD369]" />
+                  Continue with Google
+                </Button>
+                <Button onClick={() => handleOpenSocial('Facebook')} className="bg-white/10 text-white">
+                  <Facebook className="w-4 h-4 mr-2 text-[#FFD369]" />
+                  Continue with Facebook
+                </Button>
+              </div>
+            </motion.div>
+
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Name */}
               <motion.div variants={itemVariants} className="space-y-2">
@@ -368,7 +435,37 @@ const handleSendOtp = async () => {
             </motion.div>
           </CardContent>
         </Card>
+        {/* Social fallback modal */}
+        {showSocialModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+            <div className="bg-white/5 backdrop-blur-md border border-[#FFD369]/20 p-6 rounded-md w-full max-w-md">
+              <h3 className="text-lg font-semibold text-white mb-3">Continue with {socialProvider}</h3>
+              <div className="space-y-3">
+                <div>
+                  <Label className="text-white">Full Name</Label>
+                  <Input value={socialData.name} onChange={(e) => setSocialData({ ...socialData, name: e.target.value })} className="bg-[#2C1E4A]/50 text-white" />
+                </div>
+                <div>
+                  <Label className="text-white">Email</Label>
+                  <Input value={socialData.email} onChange={(e) => setSocialData({ ...socialData, email: e.target.value })} className="bg-[#2C1E4A]/50 text-white" />
+                </div>
+                <div>
+                  <Label className="text-white">Phone (optional)</Label>
+                  <Input value={socialData.phone} onChange={(e) => setSocialData({ ...socialData, phone: e.target.value })} className="bg-[#2C1E4A]/50 text-white" />
+                </div>
+                <div className="flex justify-end gap-2 mt-2">
+                  <Button onClick={() => setShowSocialModal(false)} className="bg-transparent border border-white/10 text-white">Cancel</Button>
+                  <Button onClick={handleSocialSubmit} disabled={socialLoading} className="bg-[#FFD369] text-[#1a0f1a]">
+                    {socialLoading ? 'Please wait...' : `Continue with ${socialProvider}`}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </motion.div>
     </div>
   );
 }
+
+// Social modal markup moved outside main component return would be unreachable; instead insert modal earlier

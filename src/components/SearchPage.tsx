@@ -69,6 +69,16 @@ export default function SearchPage({
     fetchCategories();
   }, []);
 
+  // Helper: shuffle array (Fisher-Yates) to randomize product listing
+  const shuffleArray = <T,>(arr: T[]): T[] => {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  };
+
   // Filter state
   const [filters, setFilters] = useState<FilterState>({
     categories: qCategory ? [qCategory] : [],
@@ -175,7 +185,7 @@ export default function SearchPage({
           filtered = filtered.filter((p) => p.sellingPrice <= qPrice);
         }
 
-        setProducts(filtered);
+  setProducts(shuffleArray(filtered));
       } catch (error) {
         console.error("Failed to fetch products:", error);
         setAllProducts([]);
@@ -231,7 +241,8 @@ export default function SearchPage({
       filtered = filtered.filter((p) => !!p.stock);
     }
 
-    setProducts(filtered);
+    // Randomize order so listing appears shuffled to users
+    setProducts(shuffleArray(filtered));
   }, [filters, allProducts]);
 
   // ---------- Cart handling ----------
@@ -249,7 +260,7 @@ export default function SearchPage({
 
   // ---------- Filter Sidebar component ----------
   const FilterSidebar = () => (
-    <div className="space-y-5 bg-[#1a0f1a]/70 p-5 rounded-2xl border border-[#FFD369]/20 shadow-lg shadow-[#FFD369]/10 backdrop-blur-md transition-all duration-300">
+    <div className="space-y-5 bg-[#1a0f1a]/70 p-5 rounded-2xl border border-[#FFD369]/20 shadow-lg shadow-[#FFD369]/10 backdrop-blur-md transition-all duration-300 overflow-y-auto">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-[#FFD369] flex items-center gap-2">
           <Filter className="w-5 h-5 text-[#FFD369]" /> Filters
@@ -335,7 +346,7 @@ export default function SearchPage({
 
   // ---------- Render ----------
   return (
-    <div className="relative min-h-screen bg-gradient-to-b from-[#0f0a10] to-[#1a0f1a] text-white">
+    <div className="relative min-h-screen bg-linear-to-b from-[#0f0a10] to-[#1a0f1a] text-white">
       {/* Full Page Loader Overlay */}
       {loading && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#0f0a10]/90 backdrop-blur-sm">
@@ -350,7 +361,7 @@ export default function SearchPage({
         </div>
       )}
 
-      <div className="container mx-auto px-4 py-10 flex flex-col lg:flex-row gap-8">
+  <div className="container mx-auto px-4 py-10 flex flex-col lg:flex-row gap-8 items-start">
         {/* Mobile Filter Toggle */}
         <div className="lg:hidden mb-4">
           <Button
@@ -372,7 +383,7 @@ export default function SearchPage({
         </div>
 
         {/* Desktop Filter Sidebar */}
-        <aside className="hidden lg:block w-72 flex-shrink-0 sticky top-24 h-fit">
+        <aside className="hidden lg:block w-72 shrink-0 sticky top-24 self-start max-h-[calc(100vh-8rem)] overflow-y-auto">
           <FilterSidebar />
         </aside>
 

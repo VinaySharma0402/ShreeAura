@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import shreeaurahero from "../assets/shreeaurahero.jpeg";
 import girlsProduct from "../assets/girlsproducts.png";
@@ -120,11 +120,26 @@ useEffect(() => {
               </motion.p>
               <motion.button
                 onClick={() => setCurrentPage("search")}
-                className="bg-[#FFD369] text-[#1a0f1a] font-semibold px-6 py-3 rounded-full shadow-lg hover:shadow-[#FFD369]/50 hover:bg-[#ffcb47] transition-all"
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
+                aria-label="Explore products"
+                initial={{ y: 0 }}
+                animate={{
+                  y: [0, -6, 0],
+                  boxShadow: [
+                    "0 0 0px rgba(255,211,105,0)",
+                    "0 0 28px rgba(255,211,105,0.28)",
+                    "0 0 0px rgba(255,211,105,0)",
+                  ],
+                }}
+                transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+                whileHover={{ scale: 1.06 }}
+                whileTap={{ scale: 0.98 }}
+                className="relative inline-flex items-center gap-3 bg-linear-to-r from-[#FFD369] via-[#FFDF7A] to-[#FFD369] text-[#1a0f1a] font-extrabold px-8 py-4 md:px-10 md:py-5 rounded-full shadow-2xl hover:from-[#ffdc66] hover:to-[#ffd369] transition-all text-lg md:text-2xl"
               >
-                Explore Now
+                <span className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-white/80 text-[#1a0f1a] shadow-md">
+                  <ArrowRight className="w-4 h-4" />
+                </span>
+                <span>Explore Now</span>
+                <span className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-[#FFD369] opacity-60 blur-sm" />
               </motion.button>
             </div>
           </motion.div>

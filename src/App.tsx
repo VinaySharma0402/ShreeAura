@@ -113,7 +113,8 @@ function AnimatedRoutes() {
     location.pathname === "/login" || location.pathname === "/register";
 
   return (
-    <div className="min-h-screen bg-[#1a0f1a]">
+    <div className="min-h-screen bg-[#1a0f1a] pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
+
       {!isSpecialPage && (
         <Header currentPage={location.pathname} setCurrentPage={setCurrentPage} />
       )}
