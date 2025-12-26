@@ -20,6 +20,7 @@ export default function ProductDetails() {
   const [currentUrl, setCurrentUrl] = useState("");
 
   useEffect(() => {
+    console.log(currentUrl);
     setCurrentUrl(window.location.href);
   }, []);
 
