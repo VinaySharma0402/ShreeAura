@@ -60,13 +60,16 @@ export default function ProductCard({
   }
 
   // 1️⃣ Add to cart
-  onAddToCart?.(product);
-
-  // 2️⃣ Redirect to cart if parent passed function
-  onBuyNow?.(product);
-
-  // 3️⃣ Toast message
-  toast.success(`Redirecting to checkout for ${product.name}...`);
+  // If parent provided a dedicated `onBuyNow` handler it should handle
+  // adding to cart and navigation. Call that exclusively to avoid
+  // double-adding. Otherwise fall back to adding to cart locally.
+  if (onBuyNow) {
+    onBuyNow(product);
+    toast.success(`Redirecting to checkout for ${product.name}...`);
+  } else {
+    onAddToCart?.(product);
+    toast.success(`${product.name} added to cart! Redirecting to checkout...`);
+  }
 };
 
   const isGoToCart = buttonText?.toLowerCase().includes("go to cart");

@@ -315,7 +315,7 @@ const handleSendOtp = async () => {
 
               {/* Phone */}
               <motion.div variants={itemVariants} className="space-y-2">
-                <Label htmlFor="phone" className="text-white">Phone Number (Optional)</Label>
+                <Label htmlFor="phone" className="text-white">Phone Number</Label>
                 <div className="relative">
                   <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#FFD369] w-4 h-4" />
                   <Input
@@ -326,6 +326,7 @@ const handleSendOtp = async () => {
                     onChange={handleInputChange}
                     className="pl-10 bg-[#2C1E4A]/50 border-[#FFD369]/30 text-white placeholder:text-white/50 focus:border-[#FFD369]"
                     placeholder="Enter your phone number"
+                    required={true}
                   />
                 </div>
               </motion.div>

@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Confetti from "react-confetti";
 import {
   fetchUserProfile,
+  updateUserProfile,
   placeOrder,
   createRazorpayOrder,
   checkRazorpayOrderStatus,
@@ -118,6 +119,35 @@ export default function CheckoutPage({ setCurrentPage }: CheckoutPageProps) {
         phone: shipping.phone,
         modeOfPayment,
       };
+
+      // If user exists and shipping differs from saved profile, update profile first
+      try {
+        if (userId && suser) {
+          const changed: Partial<User> = {};
+          if ((suser.name || "") !== (shipping.name || "")) changed.name = shipping.name;
+          if ((suser.email || "") !== (shipping.email || "")) changed.email = shipping.email;
+          if ((suser.phone || "") !== (shipping.phone || "")) changed.phone = shipping.phone;
+          if ((suser.address || "") !== (shipping.address || "")) changed.address = shipping.address;
+          if ((suser.city || "") !== (shipping.city || "")) changed.city = shipping.city;
+          if ((suser.state || "") !== (shipping.state || "")) changed.state = shipping.state;
+          if ((suser.pincode || "") !== (shipping.pincode || "")) changed.pincode = shipping.pincode;
+
+          // If any field changed, call update API
+          if (Object.keys(changed).length > 0) {
+            setIsProcessing(true);
+            await updateUserProfile(userId!, changed);
+            // Refresh local suser to reflect updated data
+            const refreshed = await fetchUserProfile(userId!);
+            setSuser(refreshed);
+            toast.success("Profile updated with latest shipping details.");
+          }
+        }
+      } catch (err: any) {
+        console.error("Failed to update profile before placing order:", err);
+        setIsProcessing(false);
+        toast.error(err?.message || "Failed to update profile. Please try again.");
+        return;
+      }
 
       if (modeOfPayment === "cod") {
         await placeOrder(orderPayload, coords.lat, coords.lng, "");

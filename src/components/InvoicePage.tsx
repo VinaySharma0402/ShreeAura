@@ -290,7 +290,7 @@ export default function InvoicePage() {
                         <span>₹{shipping.toFixed(2)}</span>
                       </div>
                       <div className="flex justify-between py-2 text-sm">
-                        <span>Handling (10%):</span>
+                        <span>Handling:</span>
                         <span>₹{handling.toFixed(2)}</span>
                       </div>
                       {delivery > 0 && (
