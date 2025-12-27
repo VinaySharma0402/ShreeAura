@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Eye, EyeOff, User, Mail, Phone, Lock, ArrowRight, CheckCircle, ShieldCheck, Facebook } from 'lucide-react';
+import { Eye, EyeOff, User, Mail, Phone, Lock, ArrowRight, CheckCircle, ShieldCheck } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
@@ -39,7 +39,7 @@ export default function RegisterPage({ setCurrentPage }: RegisterPageProps) {
   const [socialProvider, setSocialProvider] = useState<string | null>(null);
   const [socialData, setSocialData] = useState({ name: '', email: '', phone: '' });
   const [socialLoading, setSocialLoading] = useState(false);
-
+console.log("Social Provider:", setSocialProvider);
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
@@ -136,15 +136,7 @@ const handleSendOtp = async () => {
   };
 
   // Open a small modal to collect missing data from the social provider (fallback)
-  const handleOpenSocial = (provider: string) => {
-    setSocialProvider(provider);
-    setSocialData({
-      name: formData.name || '',
-      email: formData.email || '',
-      phone: formData.phone || '',
-    });
-    setShowSocialModal(true);
-  };
+  
 
   const handleSocialSubmit = async () => {
     if (!socialData.email || !socialData.name) {
@@ -231,19 +223,7 @@ const handleSendOtp = async () => {
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Social sign-in (fallback modal will collect any missing fields) */}
-            <motion.div variants={itemVariants} className="flex flex-col items-center gap-3">
-              <p className="text-white/70">Or continue with</p>
-              <div className="flex gap-3">
-                <Button onClick={() => handleOpenSocial('Google')} className="bg-white/10 text-white">
-                  <Mail className="w-4 h-4 mr-2 text-[#FFD369]" />
-                  Continue with Google
-                </Button>
-                <Button onClick={() => handleOpenSocial('Facebook')} className="bg-white/10 text-white">
-                  <Facebook className="w-4 h-4 mr-2 text-[#FFD369]" />
-                  Continue with Facebook
-                </Button>
-              </div>
-            </motion.div>
+            
 
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Name */}
