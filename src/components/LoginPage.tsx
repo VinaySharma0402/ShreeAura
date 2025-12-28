@@ -19,7 +19,7 @@ import { Checkbox } from "./ui/checkbox";
 import { toast } from "sonner";
 import {
   loginCustomer,
-  sendEmailOtp,
+  
   verifyEmailOtp,
   API_BASE,
   sendForgotPasswordOtp,

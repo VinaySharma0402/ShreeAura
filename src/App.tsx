@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from "motion/react";
-import { BrowserRouter, Routes, Route, useLocation, useNavigate, HashRouter } from "react-router-dom";
+import {  Routes, Route, useLocation, useNavigate, HashRouter } from "react-router-dom";
 import { Toaster } from "./components/ui/sonner";
 
 import Header from "./components/Header";
