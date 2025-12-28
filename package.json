@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@capacitor/android": "^7.4.4",
+    "@capacitor/app": "^7.1.1",
     "@capacitor/cli": "^7.4.4",
     "@capacitor/core": "^7.4.4",
     "@radix-ui/react-accordion": "^1.2.3",
@@ -70,6 +71,7 @@
     "vaul": "^1.1.2"
   },
   "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
     "@eslint/js": "^9.33.0",
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",

@@ -1,5 +1,7 @@
+import { useEffect, useRef } from 'react';
+import { toast } from 'sonner';
 import { motion, AnimatePresence } from "motion/react";
-import { BrowserRouter, Routes, Route, useLocation, useNavigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, useNavigate, HashRouter } from "react-router-dom";
 import { Toaster } from "./components/ui/sonner";
 
 import Header from "./components/Header";
@@ -23,6 +25,59 @@ import Team from "./components/Team";
 function AnimatedRoutes() {
   const location = useLocation();
   const navigate = useNavigate();
+
+  // In-app navigation stack so we can reliably navigate back inside the app
+  // when the hardware back button is pressed. We push each visited route
+  // (pathname+search) into the stack. On back, pop and navigate to previous.
+  const navStack = useRef<string[]>([]);
+
+  // Push current route to stack (avoid pushing duplicates for same route)
+  useEffect(() => {
+    const cur = location.pathname + (location.search || '');
+    const stack = navStack.current;
+    if (stack.length === 0 || stack[stack.length - 1] !== cur) {
+      stack.push(cur);
+    }
+  }, [location.pathname, location.search]);
+
+  useEffect(() => {
+    let removeListener: any;
+    try {
+      const { App: CapacitorApp } = require('@capacitor/app');
+      if (CapacitorApp && CapacitorApp.addListener) {
+        const lastBackPress = { time: 0 };
+        removeListener = CapacitorApp.addListener('backButton', () => {
+          const stack = navStack.current;
+          if (stack.length > 1) {
+            // pop current
+            stack.pop();
+            const previous = stack[stack.length - 1];
+            // navigate to previous route (string may include search)
+            navigate(previous, { replace: true });
+          } else {
+            // If the user presses back on root, require a double-press to exit
+            const now = Date.now();
+            if (now - lastBackPress.time < 2000) {
+              if (CapacitorApp.exitApp) CapacitorApp.exitApp();
+            } else {
+              lastBackPress.time = now;
+              toast('Press back again to exit');
+            }
+          }
+        });
+      }
+    } catch (e) {
+      // Capacitor not present (web); ignore
+    }
+
+    return () => {
+      try {
+        if (removeListener && typeof removeListener.remove === 'function') removeListener.remove();
+      } catch (err) {
+        // ignore
+      }
+    };
+  }, [navigate]);
 
   // ⭐ FIXED setCurrentPage — product navigation now works correctly
   const setCurrentPage = (
@@ -193,7 +248,7 @@ export default function App() {
   return (
     <AuthProvider>
       <CartProvider>
-        <BrowserRouter>
+        <HashRouter>
           <AnimatedRoutes />
           <Toaster
             richColors
@@ -207,7 +262,7 @@ export default function App() {
               },
             }}
           />
-        </BrowserRouter>
+        </HashRouter>
       </CartProvider>
     </AuthProvider>
   );

@@ -22,6 +22,7 @@ import {
   sendEmailOtp,
   verifyEmailOtp,
   API_BASE,
+  sendForgotPasswordOtp,
 } from "./services/auth";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 
@@ -80,7 +81,7 @@ export default function LoginPage({ setCurrentPage }: LoginPageProps) {
     }
     try {
       setForgotLoading(true);
-      await sendEmailOtp(forgotData.email);
+      await sendForgotPasswordOtp(forgotData.email);
       toast.success("OTP sent successfully to your email!");
       setOtpSent(true);
     } catch (err: any) {
