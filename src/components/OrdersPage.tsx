@@ -119,10 +119,21 @@ export default function OrdersPage({ setCurrentPage }: OrdersPageProps) {
   const OrderCard = ({ order, index }: { order: OrderResponse; index: number }) => {
     const status = statusMap[order.status] || statusMap[0];
     
-      (order.products && (order.products as any).imageUrl) || "/placeholder.png";
-    const productEntries = Object.entries(order.products || {}).filter(
-      ([key, value]) => typeof value === "number" && !/price/i.test(key)
-    );
+      // Normalize products: backend may return either `products` (object) or `productsList` (array)
+      const productListFromArray = Array.isArray((order as any).productsList)
+        ? (order as any).productsList.map((p: any) => ({
+            name: p.ProductName,
+            image: p.ProductImage,
+            qty: p.Quantity,
+            price: p.ProductPrice,
+          }))
+        : [];
+
+      const productEntries = productListFromArray.length
+        ? productListFromArray
+        : Object.entries(order.products || {}).
+            filter(([key, value]) => typeof value === "number" && !/price/i.test(key))
+            .map(([name, qty]) => ({ name, qty: qty as number, price: (order.products as any).productPrice }));
 
     return (
       <motion.div variants={itemVariants} whileHover={{ scale: 1.02 }}>
@@ -157,12 +168,12 @@ export default function OrdersPage({ setCurrentPage }: OrdersPageProps) {
             <div className="space-y-3 mb-4">
               <div className="flex items-center justify-between">
                 <span className="text-white/70">Items:</span>
-                <span className="text-white">{productEntries.length}</span>
+                <span className="text-white">{productEntries.reduce((s:any,p:any)=>s+(p.qty||1),0)}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-white/70">Total:</span>
                 <span className="text-xl font-bold text-[#FFD369]">
-                  ₹{order.totalPrice.toFixed(2)}
+                  ₹{Number(order.totalPrice).toFixed(2)}
                 </span>
               </div>
             </div>
@@ -342,37 +353,25 @@ export default function OrdersPage({ setCurrentPage }: OrdersPageProps) {
             <div className="space-y-4">
               {/* 🧍 Address Section */}
               <div className="p-4 bg-[#1a0f1a] rounded-lg text-white/80">
-                <h4 className="font-semibold text-[#FFD369] mb-2">
-                  Delivery Address
-                </h4>
+                <h4 className="font-semibold text-[#FFD369] mb-2">Delivery Address</h4>
                 <p>{selectedOrder.address}</p>
                 <p>📞 {selectedOrder.phone}</p>
               </div>
 
               {/* 🛍️ Products Section */}
-              {Object.entries(selectedOrder.products)
-                .filter(([key, value]) => typeof value === "number" && !/price/i.test(key))
-                .map(([name, quantity], idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-center space-x-4 p-3 bg-[#1a0f1a] rounded-lg"
-                  >
-                    <ImageWithFallback
-                      src={
-                        (selectedOrder.products as any).imageUrl ||
-                        "/placeholder.png"
-                      }
-                      alt={name}
-                      className="w-16 h-16 object-cover rounded-md"
-                    />
-                        <div className="flex-1">
-                          <h5 className="text-white font-medium">{name}</h5>
-                          <span className="text-[#FFD369]">
-                            Qty: {quantity as number} | Price:- {selectedOrder.products.productPrice as number as any}
-                          </span>
-                        </div>
+              {(Array.isArray((selectedOrder as any).productsList) ? (selectedOrder as any).productsList : []).map((p: any, idx: number) => (
+                <div key={idx} className="flex items-center space-x-4 p-3 bg-[#1a0f1a] rounded-lg">
+                  <ImageWithFallback
+                    src={p.ProductImage || "/placeholder.png"}
+                    alt={p.ProductName}
+                    className="w-16 h-16 object-cover rounded-md"
+                  />
+                  <div className="flex-1">
+                    <h5 className="text-white font-medium">{p.ProductName}</h5>
+                    <span className="text-[#FFD369]">Qty: {p.Quantity} | Price: ₹{Number(p.ProductPrice).toFixed(2)}</span>
                   </div>
-                ))}
+                </div>
+              ))}
             </div>
           ) : (
             <p className="text-white/50 text-center py-6">No items found</p>

@@ -84,11 +84,18 @@ export default function InvoicePage() {
     return undefined;
   };
 
-  const productList = Object.entries(order.products || {})
-    .filter(([key, value]) => typeof value === "number" && !/price/i.test(key))
-    .map(([name, qty]) => ({ name, qty: qty as number, price: getProductPrice(order, name) }));
-  const orderDate = new Date(order.orderTime);
-  const invoiceNumber = `INV-${order.orderId.slice(-8).toUpperCase()}`;
+  // Support `productsList` shape returned by backend: array of { ProductName, Quantity, ProductPrice }
+  const productList = Array.isArray((order as any).productsList)
+    ? (order as any).productsList.map((p: any) => ({
+        name: p.ProductName,
+        qty: p.Quantity,
+        price: p.ProductPrice,
+      }))
+    : Object.entries(order.products || {})
+        .filter(([key, value]) => typeof value === "number" && !/price/i.test(key))
+        .map(([name, qty]) => ({ name, qty: qty as number, price: getProductPrice(order, name) }));
+  const orderDate = new Date(order.orderTime || (order as any).orderDateTime || Date.now());
+  const invoiceNumber = order.orderId ? `INV-${String(order.orderId).slice(-8).toUpperCase()}` : `INV-${Date.now()}`;
 
   // Status badge styles
   const statusMap: Record<number, { label: string; color: string }> = {
@@ -242,15 +249,15 @@ export default function InvoicePage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {productList.map((p, idx) => (
+                  {productList.map((p: any, idx: number) => (
                     <tr key={idx} className="border-b border-gray-200 hover:bg-gray-50">
                       <td className="py-4">{p.name}</td>
                       <td className="text-center py-4">{p.qty}</td>
                       <td className="text-right py-4">
-                        {p.price !== undefined ? `₹${p.price.toFixed(2)}` : `-`}
+                        {p.price !== undefined ? `₹${Number(p.price).toFixed(2)}` : `-`}
                       </td>
                       <td className="text-right py-4">
-                        {p.price !== undefined ? `₹${(p.price * p.qty).toFixed(2)}` : `-`}
+                        {p.price !== undefined ? `₹${(Number(p.price) * Number(p.qty)).toFixed(2)}` : `-`}
                       </td>
                     </tr>
                   ))}
@@ -266,10 +273,10 @@ export default function InvoicePage() {
               <div className="w-64">
                 {(() => {
                   const productSubtotal = productList.reduce(
-                    (s, p) => s + (p.price ? p.price * p.qty : 0),
+                    (s: number, p: any) => s + (p.price ? Number(p.price) * Number(p.qty) : 0),
                     0
                   );
-                  const hasPrices = productList.some((p) => p.price !== undefined);
+                  const hasPrices = productList.some((p: any) => p.price !== undefined);
 
                   // Charges
                   const shipping = 10;
