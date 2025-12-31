@@ -273,7 +273,7 @@ export default function InvoicePage() {
 
                   // Charges
                   const shipping = 10;
-                  const handling = productSubtotal * 0.1; // 10% handling charge on product subtotal
+                  const handling = 1; // 10% handling charge on product subtotal
                   const delivery = productSubtotal < 200 && productSubtotal > 0 ? 20 : 0;
 
                   // Subtotal per user's rule: product price + shipping + 10% handling + conditional delivery
