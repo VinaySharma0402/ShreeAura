@@ -138,7 +138,7 @@ useEffect(() => {
                 <span className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-white/80 text-[#1a0f1a] shadow-md">
                   <ArrowRight className="w-4 h-4" />
                 </span>
-                <span>Explore Now</span>
+                <span>Shop Now</span>
                 <span className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-[#FFD369] opacity-60 blur-sm" />
               </motion.button>
             </div>
