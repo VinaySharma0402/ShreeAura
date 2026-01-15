@@ -15,7 +15,7 @@ interface NameCard {
   image: string;
 }
 
-const CACHE_KEY = "shop_by_name_cache";
+const CACHE_KEY = "shop_by_name_cache_v3";
 const CACHE_DURATION_MS = 0.1 * 60 * 1000; // 0.1 min
 
 const AnimatedSection = ({ children, delay = 0 }: any) => {
@@ -42,7 +42,7 @@ export default function ShopByName({ setCurrentPage }: FeaturedProductsProps) {
   const handleSearch = (query: string) => {
     const finalQuery = query.trim();
     if (!finalQuery) return;
-    setCurrentPage("search", { name: finalQuery });
+    setCurrentPage("search", { brand: finalQuery });
   };
 
   useEffect(() => {

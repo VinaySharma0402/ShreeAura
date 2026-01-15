@@ -1,13 +1,35 @@
 @import "tailwindcss";
 
-/* Ensure the app root fills the viewport and allows smooth scrolling inside the WebView.
-	 This helps avoid clipped/overflowing content behind the status bar / home indicator when
-	 running inside Capacitor/Capacitor WebView on mobile devices. */
-html, body, #root {
+:root {
+	/* Fresh Light Theme Palette */
+	--background: #ffffff;
+	--foreground: #1f2937;
+	/* Gray-800 */
+	--primary: #059669;
+	/* Emerald-600 */
+	--primary-foreground: #ffffff;
+	--secondary: #f59e0b;
+	/* Amber-500 */
+	--card: #f9fafb;
+	/* Gray-50 */
+	--card-foreground: #1f2937;
+	--border: #e5e7eb;
+	/* Gray-200 */
+
+	--vh: 100dvh;
+}
+
+/* Ensure the app root fills the viewport and allows smooth scrolling inside the WebView. */
+html,
+body,
+#root {
 	height: 100%;
 	min-height: 100%;
 	-webkit-font-smoothing: antialiased;
 	-webkit-text-size-adjust: 100%;
+	background-color: var(--background);
+	color: var(--foreground);
+    font-family: 'Outfit', 'Segoe UI', 'Helvetica Neue', sans-serif;
 }
 
 /* Use the safe-area insets so content isn't hidden under the notch/home indicator */
@@ -24,9 +46,7 @@ body {
 }
 
 /* Make sure full-height containers use the visual viewport height on mobile to avoid address-bar issues */
-:root {
-	--vh: 100dvh;
-}
+/* :root var(--vh) moved to top */
 
 /* Optional: make main take full visual height when min-h-screen is used */
 .min-h-screen {
@@ -34,6 +54,7 @@ body {
 }
 
 /* Prevent unexpected horizontal scroll in WebView */
-body, #root {
+body,
+#root {
 	overflow-x: hidden;
 }

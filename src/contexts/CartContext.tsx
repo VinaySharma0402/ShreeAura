@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect,  } from 'react';
+import React, { createContext, useContext, useState, useEffect, } from 'react';
 import type { ReactNode } from 'react';
 import type { Product } from '../components/ProductCard';
 export interface CartItem extends Product {
@@ -31,7 +31,7 @@ export interface Order {
 interface CartContextType {
   items: CartItem[];
   orders: Order[];
-  addToCart: (item: Omit<CartItem, 'quantity'>) => void;
+  addToCart: (item: Omit<CartItem, 'quantity'>, quantity?: number) => void;
   removeFromCart: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
@@ -40,8 +40,9 @@ interface CartContextType {
   checkout: (shippingInfo: any, paymentInfo: any) => Promise<string>;
   getOrderById: (orderId: string) => Order | undefined;
   setCartTotal: (total: number) => void;
-cartTotal: number;
-
+  cartTotal: number;
+  isCartOpen: boolean;
+  toggleCart: (isOpen?: boolean) => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -62,16 +63,21 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const [items, setItems] = useState<CartItem[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [cartTotal, setCartTotal] = useState<number>(0);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+
+  const toggleCart = (isOpen?: boolean) => {
+    setIsCartOpen(prev => isOpen ?? !prev);
+  };
 
   // Load cart and orders from localStorage on mount
   useEffect(() => {
     const storedCart = localStorage.getItem('cart');
     const storedOrders = localStorage.getItem('orders');
-    
+
     if (storedCart) {
       setItems(JSON.parse(storedCart));
     }
-    
+
     if (storedOrders) {
       setOrders(JSON.parse(storedOrders));
     }
@@ -87,21 +93,22 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     localStorage.setItem('orders', JSON.stringify(orders));
   }, [orders]);
 
- const addToCart = (newItem: Omit<CartItem, 'quantity'>) => {
-  setItems(prevItems => {
-    const existingItem = prevItems.find(item => item.productId === newItem.productId);
+  const addToCart = (newItem: Omit<CartItem, 'quantity'>, quantity: number = 1) => {
+    setItems(prevItems => {
+      const existingItem = prevItems.find(item => item.productId === newItem.productId);
 
-    if (existingItem) {
-      return prevItems.map(item =>
-        item.productId === existingItem.productId
-          ? { ...item, quantity: item.quantity + 1 }
-          : item
-      );
-    } else {
-      return [...prevItems, { ...newItem, quantity: 1 }];
-    }
-  });
-};
+      if (existingItem) {
+        return prevItems.map(item =>
+          item.productId === existingItem.productId
+            ? { ...item, quantity: item.quantity + quantity }
+            : item
+        );
+      } else {
+        return [...prevItems, { ...newItem, quantity: quantity }];
+      }
+    });
+    setIsCartOpen(true);
+  };
 
 
 
@@ -110,14 +117,14 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   };
 
   const updateQuantity = (id: string, newQuantity: number) => {
-  setItems(prevItems =>
-    prevItems.map(item =>
-      item.productId === id
-        ? { ...item, quantity: newQuantity < 1 ? 1 : newQuantity }
-        : item
-    )
-  );
-};
+    setItems(prevItems =>
+      prevItems.map(item =>
+        item.productId === id
+          ? { ...item, quantity: newQuantity < 1 ? 1 : newQuantity }
+          : item
+      )
+    );
+  };
 
   const clearCart = () => {
     setItems([]);
@@ -142,7 +149,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     const total = subtotal + shipping + tax;
 
     const orderId = `ORD-${Date.now()}`;
-    
+
     const newOrder: Order = {
       id: orderId,
       items: [...items],
@@ -180,6 +187,8 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     getOrderById,
     setCartTotal,
     cartTotal,
+    isCartOpen,
+    toggleCart,
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

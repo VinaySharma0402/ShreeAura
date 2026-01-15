@@ -29,11 +29,11 @@ export default function ProductDetails() {
     console.log("Product fetched by ID===========:", productId);
     if (!productFromState && productId) {
       setLoading(true);
-        console.log("Product fetched by ID===========:", productId);
+      console.log("Product fetched by ID===========:", productId);
       HomePageApi.getProductById(productId)
         .then((res) => {
           console.log("Product fetched by ID===========:", res.data);
-          setProduct(res.data);
+          setProduct(res.data || null);
         })
         .catch(() => {
           toast.error("Failed to load product");
@@ -78,7 +78,6 @@ export default function ProductDetails() {
     }
 
     addToCart(product);
-    toast.success(`${product.name} added to cart`);
   };
 
   // ------------------------------
@@ -93,7 +92,6 @@ export default function ProductDetails() {
     }
 
     addToCart(product);
-    toast.success(`Redirecting to checkout...`);
     window.location.href = "/cart";
   };
 
@@ -101,21 +99,21 @@ export default function ProductDetails() {
   // SHARE
   // ------------------------------
   const handleShare = async () => {
-  try {
-    const url = window.location.origin + `/product/${product.productId}`;
+    try {
+      const url = window.location.origin + `/product/${product.productId}`;
 
-    if (navigator.share) {
-      await navigator.share({
-        url, // ✅ ONLY URL here
-      });
-    } else {
-      await navigator.clipboard.writeText(url);
-      toast.success("Product link copied!");
+      if (navigator.share) {
+        await navigator.share({
+          url, // ✅ ONLY URL here
+        });
+      } else {
+        await navigator.clipboard.writeText(url);
+        toast.success("Product link copied!");
+      }
+    } catch {
+      toast.error("Unable to share product");
     }
-  } catch {
-    toast.error("Unable to share product");
-  }
-};
+  };
 
 
   const discount =

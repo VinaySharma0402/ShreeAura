@@ -2,6 +2,28 @@
 import axios from "axios";
 import { API_BASE } from "./auth";
 
+// Define strict types for the API responses
+export interface Product {
+  id: number;
+  productId?: string;
+  name: string;
+  brand: string;
+  category: string;
+  sellingPrice: number;
+  mrp: number;
+  image: string;
+  rating: number;
+  reviews: number;
+  description: string;
+  stock: number;
+  badge?: string;
+  tags?: string[];
+  // properties from new API check response
+  subCategory?: string;
+  available?: boolean;
+  imageUrl?: string;
+}
+
 const API_BASE_URL = `${API_BASE}/home-page`;
 
 export const HomePageApi = {
@@ -10,7 +32,7 @@ export const HomePageApi = {
   searchProductsByName: async (name: string) => axios.get(`${API_BASE_URL}/search`, { params: { name } }),
   searchByPrice: async (price: number) => axios.get(`${API_BASE_URL}/search-by-price`, { params: { price } }),
   searchByBrand: async (brandName: string) => {
-    console.log("searchByBrand API called with:", brandName); // 👈 log API hit
+    console.log("searchByBrand API called with:", brandName);
     return axios.get(`${API_BASE_URL}/search-by-brand`, {
       params: { brandName },
     });
@@ -18,12 +40,13 @@ export const HomePageApi = {
   getProductsByCategory: async (category: string) => axios.get(`${API_BASE_URL}/category/${category}`),
   getTopRatedProducts: async () => axios.get(`${API_BASE_URL}/top-rated`),
 
-  // ✅ NEW: fetch all categories (make sure backend supports this)
-  
-
+  // Categories
   getCategories: async () => axios.get(`${API_BASE_URL}/get-categories`),
+
+  // Shops
   getShopByCategory: async () => axios.get(`${API_BASE_URL}/get-shop-by-category`),
   getShopByName: async () => axios.get(`${API_BASE_URL}/shop-by-name`),
 
+  // Blogs
   getAllBlogs: async () => axios.get(`${API_BASE_URL}/get-all-blogs`),
 };

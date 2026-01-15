@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Eye, EyeOff, User, Mail, Phone, Lock, ArrowRight, CheckCircle, ShieldCheck } from 'lucide-react';
+import { Eye, EyeOff, User, Mail, Phone, Lock, CheckCircle, ShieldCheck } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { Card, CardContent } from './ui/card';
 import { Checkbox } from './ui/checkbox';
 import { toast } from 'sonner';
-import { registerCustomer, sendEmailOtp, verifyEmailOtp } from './services/auth'; // ✅ updated import
+import { registerCustomer, sendEmailOtp, verifyEmailOtp } from './services/auth';
+import { ImageWithFallback } from "./figma/ImageWithFallback";
 
 interface RegisterPageProps {
   setCurrentPage: (page: string) => void;
@@ -24,7 +25,7 @@ export default function RegisterPage({ setCurrentPage }: RegisterPageProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(false);
- 
+
   const [isSuccess, setIsSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -34,12 +35,6 @@ export default function RegisterPage({ setCurrentPage }: RegisterPageProps) {
   const [otpVerified, setOtpVerified] = useState(false);
   const [otpLoading, setOtpLoading] = useState(false);
 
-  // Social auth fallback (simple): collect required fields and call registerCustomer
-  const [showSocialModal, setShowSocialModal] = useState(false);
-  const [socialProvider, setSocialProvider] = useState<string | null>(null);
-  const [socialData, setSocialData] = useState({ name: '', email: '', phone: '' });
-  const [socialLoading, setSocialLoading] = useState(false);
-console.log("Social Provider:", setSocialProvider);
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
@@ -47,27 +42,24 @@ console.log("Social Provider:", setSocialProvider);
     });
   };
 
-  // ✅ Send OTP
-  // ✅ Send OTP
-const handleSendOtp = async () => {
-  if (!formData.email) {
-    toast.error('Please enter a valid email');
-    return;
-  }
+  const handleSendOtp = async () => {
+    if (!formData.email) {
+      toast.error('Please enter a valid email');
+      return;
+    }
 
-  try {
-    setOtpLoading(true);
-    await sendEmailOtp(formData.email);
-    toast.success('OTP sent to your email!');
-    setOtpSent(true);
-  } catch (error: any) {
-    toast.error(error?.message || 'Failed to send OTP');
-  } finally {
-    setOtpLoading(false);
-  }
-};
+    try {
+      setOtpLoading(true);
+      await sendEmailOtp(formData.email);
+      toast.success('OTP sent to your email!');
+      setOtpSent(true);
+    } catch (error: any) {
+      toast.error(error?.message || 'Failed to send OTP');
+    } finally {
+      setOtpLoading(false);
+    }
+  };
 
-  // ✅ Verify OTP
   const handleVerifyOtp = async () => {
     if (!otp) {
       toast.error('Please enter OTP');
@@ -86,7 +78,6 @@ const handleSendOtp = async () => {
     }
   };
 
-  // ✅ Register user only if OTP verified
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -135,46 +126,6 @@ const handleSendOtp = async () => {
     }
   };
 
-  // Open a small modal to collect missing data from the social provider (fallback)
-  
-
-  const handleSocialSubmit = async () => {
-    if (!socialData.email || !socialData.name) {
-      toast.error('Please provide name and email');
-      return;
-    }
-
-    // generate a random password for social signup (backend expects a password field in registration)
-    const generatedPassword = Math.random().toString(36).slice(-10) + '!A1';
-
-    try {
-      setSocialLoading(true);
-      const res = await registerCustomer({
-        name: socialData.name,
-        email: socialData.email,
-        phone: socialData.phone,
-        password: generatedPassword,
-      });
-
-      if (res?.token) {
-        toast.success(`Signed up with ${socialProvider || 'social'} successfully`);
-        setTimeout(() => setCurrentPage('home'), 800);
-      }
-    } catch (err: any) {
-      // If email already exists, inform the user to sign in normally
-      const msg = err?.message || String(err);
-      if (msg.includes('Email already registered') || msg.includes('already registered')) {
-        toast.error('Email already registered. Please sign in using your password.');
-      } else {
-        toast.error(msg || 'Social signup failed.');
-      }
-    } finally {
-      setSocialLoading(false);
-      setShowSocialModal(false);
-    }
-  };
-
-  // Animations
   const containerVariants = {
     hidden: { opacity: 0, y: 50 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.6, staggerChildren: 0.1 } },
@@ -185,52 +136,56 @@ const handleSendOtp = async () => {
     visible: { opacity: 1, x: 0, transition: { duration: 0.4 } },
   };
 
-  const successVariants = {
-    hidden: { scale: 0, rotate: -180 },
-    visible: { scale: 1, rotate: 0, transition: { type: "spring" as const, stiffness: 200, damping: 15 } },
-  };
-
   if (isSuccess) {
     return (
-      <div className="min-h-screen bg-gradient from-[#1a0f1a] via-[#2C1E4A] to-[#4B1C3F] flex items-center justify-center p-4">
-        <motion.div variants={successVariants} initial="hidden" animate="visible" className="text-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="text-center bg-white p-12 rounded-3xl shadow-xl max-w-md w-full"
+        >
           <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-            className="inline-block mb-6"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 200, damping: 20 }}
+            className="inline-flex items-center justify-center w-24 h-24 bg-green-100 rounded-full mb-6"
           >
-            <CheckCircle className="w-24 h-24 text-[#FFD369]" />
+            <CheckCircle className="w-12 h-12 text-green-600" />
           </motion.div>
-          <h2 className="text-3xl font-bold text-[#FFD369] mb-4">Welcome to LuxeBeauty!</h2>
-          <p className="text-white/80 text-lg">Your account has been created successfully.</p>
-          <p className="text-white/60 mt-2">Redirecting to homepage...</p>
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">Welcome aboard!</h2>
+          <p className="text-gray-500 text-lg mb-6">Your account has been created successfully.</p>
+          <p className="text-sm font-medium text-[#FFD369]">Redirecting to homepage...</p>
         </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient from-[#1a0f1a] via-[#2C1E4A] to-[#4B1C3F] flex items-center justify-center p-4">
-      <motion.div variants={containerVariants} initial="hidden" animate="visible" className="w-full max-w-md">
-        <Card className="bg-white/10 backdrop-blur-lg border-[#FFD369]/20 shadow-2xl">
-          <CardHeader className="text-center pb-6">
-            <motion.div variants={itemVariants}>
-              <CardTitle className="text-3xl font-bold text-[#FFD369] mb-2">Create Account</CardTitle>
-              <CardDescription className="text-white/70">
-                Join LuxeBeauty and discover premium cosmetics
-              </CardDescription>
-            </motion.div>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Social sign-in (fallback modal will collect any missing fields) */}
-            
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 z-0">
+        <div className="absolute w-full h-full bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
+      </div>
 
+      <motion.div variants={containerVariants} initial="hidden" animate="visible" className="w-full max-w-md z-10">
+
+        {/* Header content */}
+        <motion.div variants={itemVariants} className="text-center mb-8">
+          <div className="flex flex-col items-center justify-center">
+            <ImageWithFallback src="/logo.png" className="w-20 h-20 mb-4 drop-shadow-sm" />
+            <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Create Account</h1>
+            <p className="text-gray-500 mt-2 text-sm">Join Shree Grocery family today</p>
+          </div>
+        </motion.div>
+
+        <Card className="bg-white border-0 shadow-xl rounded-2xl overflow-hidden">
+          <CardContent className="p-8 space-y-6">
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Name */}
               <motion.div variants={itemVariants} className="space-y-2">
-                <Label htmlFor="name" className="text-white">Full Name</Label>
+                <Label htmlFor="name" className="text-gray-700 font-medium">Full Name</Label>
                 <div className="relative">
-                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#FFD369] w-4 h-4" />
+                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                   <Input
                     id="name"
                     name="name"
@@ -238,7 +193,7 @@ const handleSendOtp = async () => {
                     required
                     value={formData.name}
                     onChange={handleInputChange}
-                    className="pl-10 bg-[#2C1E4A]/50 border-[#FFD369]/30 text-white placeholder:text-white/50 focus:border-[#FFD369]"
+                    className="pl-10 h-11 bg-white border-gray-200 text-gray-900 placeholder:text-gray-400 focus:border-[#FFD369] focus:ring-[#FFD369]/20 rounded-xl"
                     placeholder="Enter your full name"
                   />
                 </div>
@@ -246,10 +201,10 @@ const handleSendOtp = async () => {
 
               {/* Email + OTP */}
               <motion.div variants={itemVariants} className="space-y-2">
-                <Label htmlFor="email" className="text-white">Email Address</Label>
+                <Label htmlFor="email" className="text-gray-700 font-medium">Email Address</Label>
                 <div className="flex gap-2">
                   <div className="relative flex-1">
-                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#FFD369] w-4 h-4" />
+                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                     <Input
                       id="email"
                       name="email"
@@ -257,7 +212,7 @@ const handleSendOtp = async () => {
                       required
                       value={formData.email}
                       onChange={handleInputChange}
-                      className="pl-10 bg-[#2C1E4A]/50 border-[#FFD369]/30 text-white placeholder:text-white/50 focus:border-[#FFD369]"
+                      className="pl-10 h-11 bg-white border-gray-200 text-gray-900 placeholder:text-gray-400 focus:border-[#FFD369] focus:ring-[#FFD369]/20 rounded-xl"
                       placeholder="Enter your email"
                       disabled={otpVerified}
                     />
@@ -266,56 +221,60 @@ const handleSendOtp = async () => {
                     type="button"
                     onClick={handleSendOtp}
                     disabled={otpLoading || otpVerified}
-                    className="bg-[#FFD369] text-[#1a0f1a] hover:bg-[#FFD369]/90"
+                    className="bg-[#FFD369] text-[#1a0f1a] hover:bg-[#ffdc66] font-semibold shadow-sm h-11 px-4 rounded-xl"
                   >
-                    {otpLoading ? "Sending..." : otpVerified ? "Verified" : "Send OTP"}
-                    {otpVerified && <ShieldCheck className="ml-1 w-4 h-4 text-green-600" />}
+                    {otpLoading ? "..." : otpVerified ? "Verified" : "Send OTP"}
+                    {otpVerified && <ShieldCheck className="ml-1 w-4 h-4 text-green-700" />}
                   </Button>
                 </div>
                 {otpSent && !otpVerified && (
-                  <div className="flex gap-2 mt-2">
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    className="flex gap-2 mt-2"
+                  >
                     <Input
                       type="text"
-                      placeholder="Enter OTP"
+                      placeholder="123456"
                       value={otp}
                       onChange={(e) => setOtp(e.target.value)}
-                      className="bg-[#2C1E4A]/50 border-[#FFD369]/30 text-white placeholder:text-white/50 focus:border-[#FFD369]"
+                      className="h-11 bg-white border-gray-200 text-gray-900 placeholder:text-gray-400 focus:border-[#FFD369] focus:ring-[#FFD369]/20 rounded-xl tracking-widest text-center"
                     />
                     <Button
                       type="button"
                       onClick={handleVerifyOtp}
                       disabled={otpLoading}
-                      className="bg-[#FFD369] text-[#1a0f1a] hover:bg-[#FFD369]/90"
+                      className="bg-[#1a0f1a] text-white hover:bg-black font-medium h-11 px-6 rounded-xl"
                     >
-                      {otpLoading ? "Verifying..." : "Verify"}
+                      {otpLoading ? "..." : "Verify"}
                     </Button>
-                  </div>
+                  </motion.div>
                 )}
               </motion.div>
 
               {/* Phone */}
               <motion.div variants={itemVariants} className="space-y-2">
-                <Label htmlFor="phone" className="text-white">Phone Number</Label>
+                <Label htmlFor="phone" className="text-gray-700 font-medium">Phone Number</Label>
                 <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#FFD369] w-4 h-4" />
+                  <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                   <Input
                     id="phone"
                     name="phone"
                     type="tel"
                     value={formData.phone}
                     onChange={handleInputChange}
-                    className="pl-10 bg-[#2C1E4A]/50 border-[#FFD369]/30 text-white placeholder:text-white/50 focus:border-[#FFD369]"
+                    className="pl-10 h-11 bg-white border-gray-200 text-gray-900 placeholder:text-gray-400 focus:border-[#FFD369] focus:ring-[#FFD369]/20 rounded-xl"
                     placeholder="Enter your phone number"
-                    required={true}
+                    required
                   />
                 </div>
               </motion.div>
 
               {/* Password */}
               <motion.div variants={itemVariants} className="space-y-2">
-                <Label htmlFor="password" className="text-white">Password</Label>
+                <Label htmlFor="password" className="text-gray-700 font-medium">Password</Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#FFD369] w-4 h-4" />
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                   <Input
                     id="password"
                     name="password"
@@ -323,24 +282,24 @@ const handleSendOtp = async () => {
                     required
                     value={formData.password}
                     onChange={handleInputChange}
-                    className="pl-10 pr-10 bg-[#2C1E4A]/50 border-[#FFD369]/30 text-white placeholder:text-white/50 focus:border-[#FFD369]"
+                    className="pl-10 pr-10 h-11 bg-white border-gray-200 text-gray-900 placeholder:text-gray-400 focus:border-[#FFD369] focus:ring-[#FFD369]/20 rounded-xl"
                     placeholder="Create a strong password"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#FFD369] hover:text-white transition-colors"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                   >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
               </motion.div>
 
               {/* Confirm Password */}
               <motion.div variants={itemVariants} className="space-y-2">
-                <Label htmlFor="confirmPassword" className="text-white">Confirm Password</Label>
+                <Label htmlFor="confirmPassword" className="text-gray-700 font-medium">Confirm Password</Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#FFD369] w-4 h-4" />
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                   <Input
                     id="confirmPassword"
                     name="confirmPassword"
@@ -348,67 +307,60 @@ const handleSendOtp = async () => {
                     required
                     value={formData.confirmPassword}
                     onChange={handleInputChange}
-                    className="pl-10 pr-10 bg-[#2C1E4A]/50 border-[#FFD369]/30 text-white placeholder:text-white/50 focus:border-[#FFD369]"
+                    className="pl-10 pr-10 h-11 bg-white border-gray-200 text-gray-900 placeholder:text-gray-400 focus:border-[#FFD369] focus:ring-[#FFD369]/20 rounded-xl"
                     placeholder="Confirm your password"
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#FFD369] hover:text-white transition-colors"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                   >
-                    {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
               </motion.div>
 
               {/* Terms */}
-              <motion.div variants={itemVariants} className="space-y-4">
+              <motion.div variants={itemVariants} className="space-y-4 pt-2">
                 <div className="flex items-start space-x-3">
                   <Checkbox
                     id="terms"
                     checked={acceptTerms}
                     onCheckedChange={(checked) => setAcceptTerms(checked === true)}
-                    className="border-[#FFD369] data-[state=checked]:bg-[#FFD369] data-[state=checked]:text-[#1a0f1a]"
+                    className="border-gray-300 data-[state=checked]:bg-[#FFD369] data-[state=checked]:border-[#FFD369] text-white mt-1"
                   />
-                  <Label htmlFor="terms" className="text-sm text-white/80 leading-relaxed">
+                  <Label htmlFor="terms" className="text-sm text-gray-500 leading-relaxed cursor-pointer">
                     I agree to the{' '}
-                    <a href="#" className="text-[#FFD369] hover:underline">Terms of Service</a>
+                    <a href="#" className="text-[#E6B800] hover:text-[#d4a900] font-medium hover:underline">Terms of Service</a>
                     {' '}and{' '}
-                    <a href="#" className="text-[#FFD369] hover:underline">Privacy Policy</a>
+                    <a href="#" className="text-[#E6B800] hover:text-[#d4a900] font-medium hover:underline">Privacy Policy</a>
                   </Label>
                 </div>
               </motion.div>
 
               {/* Submit */}
-              <motion.div variants={itemVariants}>
+              <motion.div variants={itemVariants} className="pt-2">
                 <Button
                   type="submit"
                   disabled={isLoading || !otpVerified}
-                  className="w-full bg-[#FFD369] text-[#1a0f1a] hover:bg-[#FFD369]/90 py-3 font-semibold transition-all duration-200 hover:scale-105 disabled:opacity-60"
+                  className="w-full bg-[#FFD369] text-[#1a0f1a] hover:bg-[#ffdc66] py-6 rounded-xl font-bold text-base shadow-lg shadow-[#FFD369]/20 transition-all duration-200 hover:shadow-[#FFD369]/40 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isLoading ? (
-                    <motion.div
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                      className="w-5 h-5 border-2 border-[#1a0f1a] border-t-transparent rounded-full"
-                    />
+                    <div className="w-5 h-5 border-2 border-[#1a0f1a] border-t-transparent rounded-full animate-spin" />
                   ) : (
-                    <>
-                      Create Account
-                      <ArrowRight className="ml-2 w-4 h-4" />
-                    </>
+                    "Create Account"
                   )}
                 </Button>
               </motion.div>
             </form>
 
             {/* Redirect */}
-            <motion.div variants={itemVariants} className="text-center pt-4 border-t border-[#FFD369]/20">
-              <p className="text-white/70">
+            <motion.div variants={itemVariants} className="text-center pt-4 border-t border-gray-100">
+              <p className="text-gray-500 text-sm">
                 Already have an account?{' '}
                 <button
                   onClick={() => setCurrentPage('login')}
-                  className="text-[#FFD369] hover:underline font-medium"
+                  className="text-[#E6B800] hover:text-[#d4a900] font-bold hover:underline"
                 >
                   Sign In
                 </button>
@@ -416,37 +368,7 @@ const handleSendOtp = async () => {
             </motion.div>
           </CardContent>
         </Card>
-        {/* Social fallback modal */}
-        {showSocialModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-            <div className="bg-white/5 backdrop-blur-md border border-[#FFD369]/20 p-6 rounded-md w-full max-w-md">
-              <h3 className="text-lg font-semibold text-white mb-3">Continue with {socialProvider}</h3>
-              <div className="space-y-3">
-                <div>
-                  <Label className="text-white">Full Name</Label>
-                  <Input value={socialData.name} onChange={(e) => setSocialData({ ...socialData, name: e.target.value })} className="bg-[#2C1E4A]/50 text-white" />
-                </div>
-                <div>
-                  <Label className="text-white">Email</Label>
-                  <Input value={socialData.email} onChange={(e) => setSocialData({ ...socialData, email: e.target.value })} className="bg-[#2C1E4A]/50 text-white" />
-                </div>
-                <div>
-                  <Label className="text-white">Phone (optional)</Label>
-                  <Input value={socialData.phone} onChange={(e) => setSocialData({ ...socialData, phone: e.target.value })} className="bg-[#2C1E4A]/50 text-white" />
-                </div>
-                <div className="flex justify-end gap-2 mt-2">
-                  <Button onClick={() => setShowSocialModal(false)} className="bg-transparent border border-white/10 text-white">Cancel</Button>
-                  <Button onClick={handleSocialSubmit} disabled={socialLoading} className="bg-[#FFD369] text-[#1a0f1a]">
-                    {socialLoading ? 'Please wait...' : `Continue with ${socialProvider}`}
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
       </motion.div>
     </div>
   );
 }
-
-// Social modal markup moved outside main component return would be unreachable; instead insert modal earlier

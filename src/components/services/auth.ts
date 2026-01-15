@@ -1,4 +1,4 @@
-export const API_BASE = "https://api.shreeaura.in";
+export const API_BASE = "/api";
 
 export interface User {
   id?: string | undefined;

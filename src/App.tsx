@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from "motion/react";
-import {  Routes, Route, useLocation, useNavigate, HashRouter } from "react-router-dom";
+import { Routes, Route, useLocation, useNavigate, HashRouter } from "react-router-dom";
 import { Toaster } from "./components/ui/sonner";
 
 import Header from "./components/Header";
@@ -15,12 +15,14 @@ import OrdersPage from "./components/OrdersPage";
 import SearchPage from "./components/SearchPage";
 import CheckoutPage from "./components/CheckoutPage";
 import InvoicePage from "./components/InvoicePage";
+import SecondaryHeader from "./components/SecondaryHeader";
 
 import { AuthProvider } from "./contexts/AuthContext";
 import { CartProvider } from "./contexts/CartContext";
 
 import ProductDetails from "./components/ProductDetails";
 import Team from "./components/Team";
+import CartDrawer from "./components/CartDrawer";
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -140,7 +142,7 @@ function AnimatedRoutes() {
         navigate("/checkout");
         break;
       case "team":
-        navigate("/team"); 
+        navigate("/team");
         break;
       case "invoice":
         navigate("/invoice", { state: options?.product });
@@ -168,10 +170,13 @@ function AnimatedRoutes() {
     location.pathname === "/login" || location.pathname === "/register";
 
   return (
-    <div className="min-h-screen bg-[#1a0f1a] pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
+    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]">
 
       {!isSpecialPage && (
-        <Header currentPage={location.pathname} setCurrentPage={setCurrentPage} />
+        <>
+          <Header currentPage={location.pathname} setCurrentPage={setCurrentPage} />
+          <SecondaryHeader setCurrentPage={setCurrentPage} />
+        </>
       )}
 
       <AnimatePresence mode="wait">
@@ -250,6 +255,7 @@ export default function App() {
       <CartProvider>
         <HashRouter>
           <AnimatedRoutes />
+          <CartDrawer />
           <Toaster
             richColors
             position="top-right"

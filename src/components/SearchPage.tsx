@@ -56,7 +56,8 @@ export default function SearchPage({
       try {
         const res = await HomePageApi.getCategories();
         if (Array.isArray(res.data)) {
-          setCategoryOptions(res.data.map((c: any) => c.name));
+          const isStringArray = typeof res.data[0] === 'string';
+          setCategoryOptions(isStringArray ? res.data : res.data.map((c: any) => c.name));
         } else {
           setCategoryOptions([]);
         }
@@ -69,7 +70,6 @@ export default function SearchPage({
     fetchCategories();
   }, []);
 
-  // Helper: shuffle array (Fisher-Yates) to randomize product listing
   const shuffleArray = <T,>(arr: T[]): T[] => {
     const a = arr.slice();
     for (let i = a.length - 1; i > 0; i--) {
@@ -79,7 +79,6 @@ export default function SearchPage({
     return a;
   };
 
-  // Filter state
   const [filters, setFilters] = useState<FilterState>({
     categories: qCategory ? [qCategory] : [],
     brands: qBrand ? [qBrand] : [],
@@ -88,7 +87,6 @@ export default function SearchPage({
     inStock: false,
   });
 
-  // Pending filters (used by UI until Apply)
   const [pendingFilters, setPendingFilters] = useState<FilterState>(filters);
 
   const handlePendingChange = (key: keyof FilterState, value: any) =>
@@ -128,7 +126,6 @@ export default function SearchPage({
       const res = await HomePageApi.getAllProducts();
       const results: Product[] = res.data || [];
       setAllProducts(results);
-      // will trigger the filters effect to setProducts
     } catch (error) {
       console.error("Failed to fetch products:", error);
       setAllProducts([]);
@@ -145,18 +142,15 @@ export default function SearchPage({
     (filters.inStock ? 1 : 0) +
     (filters.priceRange[0] > 0 || filters.priceRange[1] < 500 ? 1 : 0);
 
-  // ---------- Fetch products (uses API search when qName present) ----------
   useEffect(() => {
     const fetchAllProducts = async () => {
       setLoading(true);
       try {
         let results: Product[] = [];
 
-        // Use API search when query name is present and non-empty
         if (qName.trim() !== "") {
           const res = await HomePageApi.searchProductsByName(qName.trim());
           results = res.data || [];
-          console.log("API search results for", qName, ":", results);
         } else {
           const res = await HomePageApi.getAllProducts();
           results = res.data || [];
@@ -164,7 +158,6 @@ export default function SearchPage({
 
         setAllProducts(results);
 
-        // Apply initial URL param filters immediately so user sees correct initial list
         let filtered = [...results];
 
         if (qName.trim() !== "") {
@@ -185,7 +178,7 @@ export default function SearchPage({
           filtered = filtered.filter((p) => p.sellingPrice <= qPrice);
         }
 
-  setProducts(shuffleArray(filtered));
+        setProducts(shuffleArray(filtered));
       } catch (error) {
         console.error("Failed to fetch products:", error);
         setAllProducts([]);
@@ -196,10 +189,8 @@ export default function SearchPage({
     };
 
     fetchAllProducts();
-    // Intentionally depend on qName/qCategory/qBrand/qPrice (URL params)
   }, [qName, qCategory, qBrand, qPrice]);
 
-  // ---------- Initialize filters / pendingFilters separately (do NOT live inside fetch effect) ----------
   useEffect(() => {
     const uiFilters: FilterState = {
       categories: qCategory ? [qCategory] : [],
@@ -211,10 +202,8 @@ export default function SearchPage({
 
     setFilters(uiFilters);
     setPendingFilters(uiFilters);
-    // This runs when URL params change — separate from fetch effect to avoid overriding products
   }, [qName, qCategory, qBrand, qPrice]);
 
-  // ---------- Apply the filters to allProducts (when filters or allProducts change) ----------
   useEffect(() => {
     let filtered = [...allProducts];
 
@@ -241,11 +230,9 @@ export default function SearchPage({
       filtered = filtered.filter((p) => !!p.stock);
     }
 
-    // Randomize order so listing appears shuffled to users
     setProducts(shuffleArray(filtered));
   }, [filters, allProducts]);
 
-  // ---------- Cart handling ----------
   const handleAddToCart = (product: Product) => {
     if (!product.stock) return;
 
@@ -258,12 +245,11 @@ export default function SearchPage({
     }
   };
 
-  // ---------- Filter Sidebar component ----------
   const FilterSidebar = () => (
-    <div className="space-y-5 bg-[#1a0f1a]/70 p-5 rounded-2xl border border-[#FFD369]/20 shadow-lg shadow-[#FFD369]/10 backdrop-blur-md transition-all duration-300 overflow-y-auto">
+    <div className="space-y-6 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm transition-all duration-300 overflow-y-auto">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-[#FFD369] flex items-center gap-2">
-          <Filter className="w-5 h-5 text-[#FFD369]" /> Filters
+        <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2 font-['Outfit']">
+          <Filter className="w-5 h-5 text-[var(--primary)]" /> Filters
         </h3>
         <div className="flex items-center gap-2">
           {activeFiltersCount > 0 && (
@@ -271,25 +257,25 @@ export default function SearchPage({
               variant="ghost"
               size="sm"
               onClick={clearAllFilters}
-              className="text-xs text-gray-300 hover:text-[#FFD369]"
+              className="text-xs text-gray-500 hover:text-[var(--primary)] font-['Outfit']"
             >
               Clear ({activeFiltersCount})
             </Button>
           )}
           <Button
             onClick={applyFilters}
-            className="bg-[#FFD369] text-[#1a0f1a] hover:bg-[#ffcb47] font-semibold px-3 py-1.5 text-sm rounded-lg transition-all"
+            className="bg-[var(--primary)] text-white hover:bg-red-700 font-bold px-4 py-1.5 text-sm rounded-full transition-all shadow-sm font-['Outfit']"
           >
             Apply
           </Button>
         </div>
       </div>
 
-      <Separator className="bg-[#FFD369]/30" />
+      <Separator className="bg-gray-100" />
 
       {/* Category Section */}
       <div className="space-y-3">
-        <h4 className="font-semibold text-white text-sm uppercase tracking-wide">
+        <h4 className="font-bold text-gray-800 text-sm uppercase tracking-wide font-['Outfit']">
           Categories
         </h4>
         <div className="grid grid-cols-1 gap-2">
@@ -297,23 +283,24 @@ export default function SearchPage({
             <motion.label
               key={cat}
               whileHover={{ x: 4 }}
-              className="flex items-center space-x-2 text-gray-300 cursor-pointer"
+              className="flex items-center space-x-2 text-gray-600 cursor-pointer hover:text-[var(--primary)] font-['Outfit']"
             >
               <Checkbox
                 checked={pendingFilters.categories.includes(cat)}
                 onCheckedChange={() => togglePendingFilter("categories", cat)}
+                className="border-gray-300 data-[state=checked]:bg-[var(--primary)] data-[state=checked]:border-[var(--primary)]"
               />
-              <span>{cat}</span>
+              <span className="text-gray-700">{cat}</span>
             </motion.label>
           ))}
         </div>
       </div>
 
-      <Separator className="bg-[#FFD369]/30" />
+      <Separator className="bg-gray-100" />
 
       {/* Price Range */}
       <div className="space-y-3">
-        <h4 className="font-semibold text-white text-sm uppercase tracking-wide">
+        <h4 className="font-bold text-gray-800 text-sm uppercase tracking-wide font-['Outfit']">
           Price Range
         </h4>
         <Slider
@@ -324,58 +311,87 @@ export default function SearchPage({
           min={0}
           max={5000}
           step={5}
+          className="py-4"
         />
-        <div className="flex justify-between text-gray-400 text-sm">
+        <div className="flex justify-between text-gray-500 text-sm font-medium font-['Outfit']">
           <span>₹{pendingFilters.priceRange[0]}</span>
           <span>₹{pendingFilters.priceRange[1]}</span>
         </div>
       </div>
 
-      <Separator className="bg-[#FFD369]/30" />
+      <Separator className="bg-gray-100" />
 
       {/* In Stock */}
-      <label className="flex items-center space-x-2 text-gray-300 cursor-pointer">
+      <label className="flex items-center space-x-2 text-gray-600 cursor-pointer hover:text-[var(--primary)] font-['Outfit']">
         <Checkbox
           checked={pendingFilters.inStock}
           onCheckedChange={(c) => handlePendingChange("inStock", c)}
+          className="border-gray-300 data-[state=checked]:bg-[var(--primary)] data-[state=checked]:border-[var(--primary)]"
         />
         <span>In Stock Only</span>
       </label>
     </div>
   );
 
-  // ---------- Render ----------
   return (
-    <div className="relative min-h-screen bg-linear-to-b from-[#0f0a10] to-[#1a0f1a] text-white">
+    <div className="relative min-h-screen bg-[var(--background)] text-[var(--foreground)] font-['Outfit']">
+
+      {/* Search Header Info */}
+      <div className="bg-[#FFF8E7] py-6 border-b border-[#F7E8C6]">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-bold text-[#1c1c1c]">
+                {qCategory ? qCategory : (qName ? `Search: "${qName}"` : "All Groceries")}
+              </h1>
+              <p className="text-gray-600 mt-1 text-sm">
+                {products.length} {products.length === 1 ? 'product' : 'products'} found
+              </p>
+            </div>
+
+            {/* Sort (Placeholder for future) */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-500">Sort by:</span>
+              <select className="bg-white border border-gray-300 text-gray-700 text-sm rounded-lg focus:ring-[var(--primary)] focus:border-[var(--primary)] block w-full p-2.5">
+                <option>Recommended</option>
+                <option>Price: Low to High</option>
+                <option>Price: High to Low</option>
+                <option>Newest Arrivals</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Full Page Loader Overlay */}
       {loading && (
-        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#0f0a10]/90 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white/90 backdrop-blur-sm">
           <motion.div
             animate={{ rotate: 360 }}
             transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-            className="w-14 h-14 border-4 border-[#FFD369] border-t-transparent rounded-full mb-6"
+            className="w-14 h-14 border-4 border-[var(--primary)] border-t-transparent rounded-full mb-6"
           />
-          <p className="text-lg font-semibold text-[#FFD369] tracking-wide">
-            Fetching Products...
+          <p className="text-lg font-semibold text-[var(--primary)] tracking-wide">
+            Fetching Freshness...
           </p>
         </div>
       )}
 
-  <div className="container mx-auto px-4 py-10 flex flex-col lg:flex-row gap-8 items-start">
+      <div className="container mx-auto px-4 py-8 flex flex-col lg:flex-row gap-8 items-start">
         {/* Mobile Filter Toggle */}
-        <div className="lg:hidden mb-4">
+        <div className="lg:hidden mb-4 w-full">
           <Button
             onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="w-full bg-[#FFD369]/20 hover:bg-[#FFD369]/30 text-[#FFD369] font-semibold flex justify-center items-center gap-2"
+            className="w-full bg-white text-gray-800 font-bold flex justify-center items-center gap-2 border border-gray-200 shadow-sm py-3"
           >
-            <Filter className="w-5 h-5" />
+            <Filter className="w-5 h-5 text-[var(--primary)]" />
             {dropdownOpen ? "Hide Filters" : "Show Filters"}
           </Button>
           {dropdownOpen && (
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mt-4 p-4 border rounded-2xl bg-[#1a0f1a]/90 shadow-lg"
+              className="mt-4 p-4 border rounded-2xl bg-white shadow-lg z-20 relative"
             >
               <FilterSidebar />
             </motion.div>
@@ -402,8 +418,8 @@ export default function SearchPage({
                 const buttonText = isOutOfStock
                   ? "Out of Stock"
                   : inCart
-                  ? "Go to Cart"
-                  : "Add to Cart";
+                    ? "Go to Cart"
+                    : "Add to Cart";
 
                 return (
                   <motion.div
@@ -427,6 +443,7 @@ export default function SearchPage({
                         })
                       }
                       buttonText={buttonText}
+                    // Pass prop to ensure button is visible or style is correct if needed in future
                     />
                   </motion.div>
                 );
@@ -439,64 +456,27 @@ export default function SearchPage({
                   initial={{ scale: 0, rotate: -15 }}
                   animate={{ scale: 1, rotate: 0 }}
                   transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                  className="bg-[#2C1E4A]/40 p-6 rounded-full border border-[#FFD369]/30 shadow-lg shadow-[#FFD369]/10"
+                  className="bg-gray-50 p-6 rounded-full border border-gray-100 shadow-sm mb-6"
                 >
-                  <SearchX className="w-14 h-14 text-[#FFD369]" />
+                  <SearchX className="w-14 h-14 text-gray-300" />
                 </motion.div>
 
-                <motion.h3
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="text-[#FFD369] font-bold text-2xl mt-6"
-                >
+                <h3 className="text-gray-900 font-bold text-2xl">
                   No Products Found
-                </motion.h3>
+                </h3>
 
-                <p className="text-gray-400 text-center mt-2 max-w-sm">
+                <p className="text-gray-500 text-center mt-2 max-w-sm">
                   We couldn’t find any products matching your filters.
-                  Try adjusting your selections or explore some of our popular picks below.
+                  Try adjusting your selections.
                 </p>
 
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.4 }}
-                  className="text-[#FFD369]/80 text-center mt-6 text-sm"
+                <Button
+                  variant="outline"
+                  className="mt-6 border-gray-300 text-gray-700 hover:bg-gray-50"
+                  onClick={clearAllFilters}
                 >
-                  Still not sure? Check out what others are loving 👇
-                </motion.p>
-
-                <div className="flex flex-wrap justify-center gap-3 mt-4">
-                  {[
-                    "Scrunchies",
-                    "Lipstick",
-                    "Perfume",
-                    "Clutcher",
-                    "Nosepin",
-                    "Bindi Set",
-                  ].map((name, index) => (
-                    <motion.button
-                      key={index}
-                      whileHover={{
-                        scale: 1.1,
-                        backgroundColor: "rgba(255,211,105,0.2)",
-                      }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => setCurrentPage("search", { name })}
-                      className="px-4 py-2 bg-[#2C1E4A]/50 border border-[#FFD369]/40 text-[#FFD369] rounded-full text-sm font-medium shadow-sm hover:shadow-md transition-all"
-                    >
-                      {name}
-                    </motion.button>
-                  ))}
-                </div>
-
-                <motion.div
-                  animate={{ y: [0, -10, 0] }}
-                  transition={{ repeat: Infinity, duration: 2 }}
-                  className="text-5xl mt-10"
-                >
-                  🛍️
-                </motion.div>
+                  Clear All Filters
+                </Button>
               </div>
             )
           )}

@@ -1,8 +1,7 @@
 import React from "react";
 import { motion } from "motion/react";
-import { Heart, ShoppingBag } from "lucide-react";
+import { Heart } from "lucide-react";
 import { Button } from "./ui/button";
-import { Badge } from "./ui/badge";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { toast } from "sonner";
 
@@ -37,12 +36,10 @@ export default function ProductCard({
   onAddToWishlist,
   onClick,
   buttonText,
-  onBuyNow,
 }: ProductCardProps) {
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
     onAddToCart?.(product);
-    toast.success(`${product.name} added to cart!`);
   };
 
   const handleAddToWishlist = (e: React.MouseEvent) => {
@@ -50,33 +47,6 @@ export default function ProductCard({
     onAddToWishlist?.(product);
     toast.success(`${product.name} added to wishlist!`);
   };
-
-  const handleBuyNow = (e: React.MouseEvent) => {
-  e.stopPropagation();
-
-  if (product.stock !== undefined && product.stock === 0) {
-    toast.error("This product is out of stock!");
-    return;
-  }
-
-  // 1️⃣ Add to cart
-  // If parent provided a dedicated `onBuyNow` handler it should handle
-  // adding to cart and navigation. Call that exclusively to avoid
-  // double-adding. Otherwise fall back to adding to cart locally.
-  if (onBuyNow) {
-    onBuyNow(product);
-    toast.success(`Redirecting to checkout for ${product.name}...`);
-  } else {
-    onAddToCart?.(product);
-    toast.success(`${product.name} added to cart! Redirecting to checkout...`);
-  }
-};
-
-  const isGoToCart = buttonText?.toLowerCase().includes("go to cart");
-  const discount =
-    product.mrp > product.sellingPrice
-      ? Math.round(((product.mrp - product.sellingPrice) / product.mrp) * 100)
-      : 0;
 
   return (
     <motion.div
@@ -86,136 +56,87 @@ export default function ProductCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
       className="
-        bg-gradient-to-b from-[#2a1c3f] to-[#1a0f1a]
-        shadow-lg hover:shadow-2xl hover:shadow-[#FFD369]/40
-        rounded-xl overflow-hidden cursor-pointer
+        bg-transparent
+        cursor-pointer
         group w-full max-w-[240px]
-        transition-all duration-300
       "
     >
       {/* Product Image */}
       <div
-        className="relative aspect-square overflow-hidden rounded-xl"
+        className="relative aspect-[3/4] overflow-hidden rounded-none bg-gray-50"
         onClick={() => onClick?.(product)}
       >
         <ImageWithFallback
           src={product.imageUrl || product.image}
           alt={product.name}
-          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
         />
 
         {/* Badge */}
         {product.badge && (
-          <Badge className="absolute top-2 left-2 bg-gradient-to-r from-[#FFD369] to-[#FFB347] text-[#1a0f1a] border-none text-xs px-2 py-1 shadow-md">
+          <div className="absolute top-0 left-0 bg-[var(--secondary)] text-white text-[10px] font-bold px-2 py-1 uppercase tracking-wider">
             {product.badge}
-          </Badge>
+          </div>
         )}
 
-        {/* Wishlist */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          whileHover={{ opacity: 1, scale: 1 }}
-          className="absolute top-2 right-2"
-        >
+        {/* Quick Actions Overlay (Wishlist) */}
+        <div className="absolute top-2 right-2 flex flex-col gap-2">
           <Button
             variant="ghost"
             size="icon"
-            className="
-              bg-black/30 text-white
-              hover:bg-gradient-to-r hover:from-[#FFD369] hover:to-[#FFB347] hover:text-[#1a0f1a]
-              w-8 h-8 opacity-0 group-hover:opacity-100 transition-all duration-200
-            "
+            className="w-8 h-8 rounded-full bg-white/80 hover:bg-white text-gray-700 hover:text-red-500 shadow-sm opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-4 group-hover:translate-x-0"
             onClick={handleAddToWishlist}
           >
-            <motion.div whileTap={{ scale: 1.2 }}>
-              <Heart className="w-4 h-4" />
-            </motion.div>
+            <Heart className="w-4 h-4" />
           </Button>
-        </motion.div>
+        </div>
 
         {/* Out of Stock */}
         {!product.stock && (
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center rounded-xl">
-            <span className="text-white text-xs font-semibold uppercase tracking-wider">
-              Out of Stock
+          <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] flex items-center justify-center">
+            <span className="text-gray-800 text-sm font-bold border border-gray-800 px-3 py-1 uppercase tracking-widest">
+              Sold Out
             </span>
           </div>
         )}
       </div>
 
       {/* Product Info */}
-      <div className="p-4 space-y-2">
+      <div className="pt-3 text-center space-y-1">
         <h3
-          className="text-white font-bold text-base leading-tight truncate hover:text-[#FFD369] transition-colors cursor-pointer"
+          className="text-[var(--foreground)] font-medium text-base leading-tight hover:text-[var(--primary)] transition-colors cursor-pointer truncate px-2"
           onClick={() => onClick?.(product)}
         >
           {product.name}
         </h3>
 
-        <h5 className="text-white/80 text-xs">{product.brand}</h5>
-        <p className="text-white/70 text-sm line-clamp-2">{product.description}</p>
-
         {/* Price */}
-        <div className="flex items-center space-x-2">
-          <span className="text-[#FFD369] font-bold text-base">
-            ₹{product.sellingPrice.toFixed(2)}
-          </span>
-
+        <div className="flex items-center justify-center gap-2">
           {product.mrp > product.sellingPrice && (
-            <span className="text-white/50 text-sm line-through">
+            <span className="text-gray-400 text-sm line-through decoration-gray-400">
               ₹{product.mrp.toFixed(2)}
             </span>
           )}
-
-          {discount > 0 && (
-            <span className="text-green-400 text-sm font-semibold">
-              {discount}% OFF
-            </span>
-          )}
+          <span className="text-[var(--foreground)] font-bold text-lg">
+            ₹{product.sellingPrice.toFixed(2)}
+          </span>
         </div>
 
-        {/* Buttons */}
-        <div className="space-y-2">
-          {/* Add to Cart */}
+        {/* Button - Minimal, only visible on group hover for desktop vibe, or always on mobile */}
+        <div className="pt-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 px-4 pb-2">
           <Button
             className={`
-              w-full py-2 text-sm font-semibold transition-all duration-200
-              hover:shadow-lg hover:shadow-[#FFD369]/40
-              ${
-                product.stock === 0
-                  ? "bg-gray-500 text-white cursor-not-allowed"
-                  : isGoToCart
-                  ? "bg-[#4B1C3F] text-[#FFD369] hover:bg-[#5e2450]"
-                  : "bg-gradient-to-r from-[#FFD369] to-[#FFB347] text-[#1a0f1a] hover:scale-105"
+                w-full h-9 text-xs font-bold uppercase tracking-wider rounded-none transition-all duration-200
+                ${product.stock === 0
+                ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                : "bg-[var(--foreground)] text-white hover:bg-[var(--primary)] hover:text-white"
               }
-            `}
+                `}
             disabled={product.stock === 0}
             onClick={handleAddToCart}
           >
-            {product.stock === 0 ? (
-              "Notify Me"
-            ) : (
-              <div className="flex items-center justify-center gap-2">
-                <ShoppingBag className="w-4 h-4" />
-                {buttonText || "Add to Cart"}
-              </div>
-            )}
+            {product.stock === 0 ? "Notify Me" : (buttonText || "Add to Cart")}
           </Button>
-
-          {/* Buy Now */}
-          {(product.stock ?? 1) > 0 && (
-            <Button
-              className="
-                w-full py-2 text-sm font-semibold 
-                bg-[#4B1C3F] text-[#FFD369]
-                hover:bg-[#5e2450] hover:shadow-lg hover:shadow-[#FFD369]/40 
-                transition-all duration-200
-              "
-              onClick={handleBuyNow}
-            >
-              Buy Now
-            </Button>
-          )}
         </div>
       </div>
     </motion.div>

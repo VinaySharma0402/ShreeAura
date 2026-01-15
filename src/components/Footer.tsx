@@ -5,7 +5,7 @@ import {
   Instagram,
   Facebook,
 
-  
+
   Linkedin,
 
 } from "lucide-react";
@@ -39,27 +39,27 @@ export default function Footer() {
               products that enhance your natural glow and confidence.
             </p>
             <div className="flex space-x-5 pt-3">
-  {[
-    { Icon: Instagram, url: "https://www.instagram.com/shreeaura.fashion" },
-    { Icon: Facebook, url: "https://www.facebook.com/profile.php?id=61583263783646" },
-    
-    { Icon: Linkedin, url: "https://www.linkedin.com/jobs" },
-  ].map(({ Icon, url }, i) => (
-    <a
-      key={i}
-      href={url}
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      <motion.div
-        whileHover={{ scale: 1.2, rotate: 5 }}
-        className="bg-white/10 p-2 rounded-full hover:bg-[#FFD369]/30 transition-colors cursor-pointer"
-      >
-        <Icon className="w-5 h-5 text-[#FFD369]" />
-      </motion.div>
-    </a>
-  ))}
-</div>
+              {[
+                { Icon: Instagram, url: "https://www.instagram.com/shreeaura.fashion" },
+                { Icon: Facebook, url: "https://www.facebook.com/profile.php?id=61583263783646" },
+
+                { Icon: Linkedin, url: "https://www.linkedin.com/jobs" },
+              ].map(({ Icon, url }, i) => (
+                <a
+                  key={i}
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <motion.div
+                    whileHover={{ scale: 1.2, rotate: 5 }}
+                    className="bg-white/10 p-2 rounded-full hover:bg-[#FFD369]/30 transition-colors cursor-pointer"
+                  >
+                    <Icon className="w-5 h-5 text-[#FFD369]" />
+                  </motion.div>
+                </a>
+              ))}
+            </div>
 
           </div>
 
@@ -69,21 +69,21 @@ export default function Footer() {
               Quick Links
             </h4>
             <ul className="space-y-2 text-sm">
-  {["combo", "rings", "Makeup+Essentials"].map((link, i) => (
-    <motion.li
-      key={i}
-      whileHover={{ x: 6 }}
-      className="transition-all duration-300"
-    >
-      <a
-        href={`/search?category=${encodeURIComponent(link)}`}
-        className="hover:text-white text-[#FFD369]/80 transition-colors"
-      >
-        {link}
-      </a>
-    </motion.li>
-  ))}
-</ul>
+              {["combo", "rings", "Makeup+Essentials"].map((link, i) => (
+                <motion.li
+                  key={i}
+                  whileHover={{ x: 6 }}
+                  className="transition-all duration-300"
+                >
+                  <a
+                    href={`/search?category=${encodeURIComponent(link)}`}
+                    className="hover:text-white text-[#FFD369]/80 transition-colors"
+                  >
+                    {link}
+                  </a>
+                </motion.li>
+              ))}
+            </ul>
 
           </div>
 
@@ -93,39 +93,39 @@ export default function Footer() {
               Customer Care
             </h4>
             <ul className="space-y-2 text-sm">
-  <motion.li whileHover={{ x: 6 }} className="transition-all duration-300">
-    <a
-      href="/contact.html"
-      className="hover:text-white text-[#FFD369]/80 transition-colors"
-    >
-      Contact Us
-    </a>
-  </motion.li>
+              <motion.li whileHover={{ x: 6 }} className="transition-all duration-300">
+                <a
+                  href="/contact.html"
+                  className="hover:text-white text-[#FFD369]/80 transition-colors"
+                >
+                  Contact Us
+                </a>
+              </motion.li>
 
-  <motion.li whileHover={{ x: 6 }} className="transition-all duration-300">
-    <a
-      href="/shipping.html"
-      className="hover:text-white text-[#FFD369]/80 transition-colors"
-    >
-      Shipping Info
-    </a>
-  </motion.li>
+              <motion.li whileHover={{ x: 6 }} className="transition-all duration-300">
+                <a
+                  href="/shipping.html"
+                  className="hover:text-white text-[#FFD369]/80 transition-colors"
+                >
+                  Shipping Info
+                </a>
+              </motion.li>
 
-  <motion.li whileHover={{ x: 6 }} className="transition-all duration-300">
-    <a
-      href="/refund.html"
-      className="hover:text-white text-[#FFD369]/80 transition-colors"
-    >
-      Returns & Exchanges
-    </a>
-  </motion.li>
+              <motion.li whileHover={{ x: 6 }} className="transition-all duration-300">
+                <a
+                  href="/refund.html"
+                  className="hover:text-white text-[#FFD369]/80 transition-colors"
+                >
+                  Returns & Exchanges
+                </a>
+              </motion.li>
 
- 
-</ul>
+
+            </ul>
 
           </div>
 
-          
+
         </motion.div>
 
         {/* Contact Info */}
