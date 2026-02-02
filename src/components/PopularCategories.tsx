@@ -60,11 +60,11 @@ export default function PopularCategories({ setCurrentPage }: { setCurrentPage: 
                             transition={{ delay: index * 0.05, duration: 0.5 }}
                             viewport={{ once: true }}
                             onClick={() => setCurrentPage("search", { category: cat.name })}
-                            className="
-                group border-r border-b border-gray-200 p-8 
+                            className="group border-r border-b border-gray-200 p-8 
                 flex flex-col items-center justify-center 
                 cursor-pointer hover:shadow-lg hover:z-10 bg-white transition-all
               "
+
                         >
                             {/* Image Circle Background */}
                             <div className="relative w-40 h-40 mb-6 flex items-center justify-center">

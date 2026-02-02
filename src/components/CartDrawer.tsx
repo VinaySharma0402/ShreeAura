@@ -69,7 +69,7 @@ export default function CartDrawer() {
                                         {/* Image */}
                                         <div className="w-20 h-20 border border-gray-200 rounded-md overflow-hidden flex-shrink-0">
                                             <ImageWithFallback
-                                                src={item.image}
+                                                src={item.imageUrl || item.image}
                                                 alt={item.name}
                                                 className="w-full h-full object-contain"
                                             />

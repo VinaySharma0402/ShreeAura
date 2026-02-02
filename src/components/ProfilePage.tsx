@@ -37,7 +37,7 @@ export default function ProfilePage({ setCurrentPage }: ProfilePageProps) {
   const [editedUser, setEditedUser] = useState<User>({} as User);
   const [isEditing, setIsEditing] = useState(false);
   const [orderCount, setOrderCount] = useState<number>(0);
-useEffect(() => {
+  useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [location.pathname]);
   // ✅ Fetch user first
@@ -81,40 +81,40 @@ useEffect(() => {
   };
 
   const handleSave = async () => {
-  if (!user?.id) return;
+    if (!user?.id) return;
 
-  // ✅ Prepare payload with only changed fields
-  const payload: Partial<typeof editedUser> = {};
-  Object.keys(editedUser).forEach((key) => {
-    const k = key as keyof typeof editedUser;
-    if (editedUser[k] !== user[k]) {
-      payload[k] = editedUser[k];
+    // ✅ Prepare payload with only changed fields
+    const payload: Partial<typeof editedUser> = {};
+    Object.keys(editedUser).forEach((key) => {
+      const k = key as keyof typeof editedUser;
+      if (editedUser[k] !== user[k]) {
+        payload[k] = editedUser[k];
+      }
+    });
+
+    // 🚫 No changes detected
+    if (Object.keys(payload).length === 0) {
+      toast.info("No changes made");
+      setIsEditing(false);
+      return;
     }
-  });
 
-  // 🚫 No changes detected
-  if (Object.keys(payload).length === 0) {
-    toast.info("No changes made");
-    setIsEditing(false);
-    return;
-  }
+    try {
+      // ✅ Send only changed fields in API payload
+      const updatedUser = await updateUserProfile(user.id, payload);
 
-  try {
-    // ✅ Send only changed fields in API payload
-    const updatedUser = await updateUserProfile(user.id, payload);
+      // ✅ Merge response with local state
+      const merged = { ...user, ...updatedUser };
+      setUser(merged);
+      setEditedUser(merged);
 
-    // ✅ Merge response with local state
-    const merged = { ...user, ...updatedUser };
-    setUser(merged);
-    setEditedUser(merged);
-
-    toast.success("Profile updated successfully!");
-    setIsEditing(false);
-  } catch (error) {
-    console.error(error);
-    toast.error("Failed to update profile");
-  }
-};
+      toast.success("Profile updated successfully!");
+      setIsEditing(false);
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to update profile");
+    }
+  };
 
   const handleCancel = () => {
     setIsEditing(false);
@@ -129,7 +129,7 @@ useEffect(() => {
 
   if (!user)
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#1a0f1a] text-white">
+      <div className="min-h-screen flex items-center justify-center bg-[var(--background)] text-gray-900">
         Loading profile...
       </div>
     );
@@ -152,7 +152,7 @@ useEffect(() => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#1a0f1a] via-[#2C1E4A] to-[#1a0f1a] py-12 px-4">
+    <div className="min-h-screen bg-[var(--background)] py-12 px-4">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
@@ -161,34 +161,34 @@ useEffect(() => {
       >
         {/* Header */}
         <div className="text-center mb-10">
-          <h1 className="text-4xl font-extrabold text-[#FFD369] drop-shadow-lg mb-2">
+          <h1 className="text-4xl font-extrabold text-[var(--primary)] drop-shadow-lg mb-2">
             My Profile
           </h1>
-          <p className="text-white/70 text-lg">
+          <p className="text-gray-600 text-lg">
             Manage your account, preferences, and summary
           </p>
         </div>
 
         {/* Profile Header Card */}
-        <Card className="bg-[#2C1E4A]/80 backdrop-blur-md border border-[#FFD369]/30 rounded-2xl shadow-2xl overflow-hidden mb-8">
+        <Card className="bg-white border border-gray-200 rounded-2xl shadow-xl overflow-hidden mb-8">
           <CardHeader className="flex flex-col md:flex-row items-center justify-between pb-0">
             <div className="flex items-center space-x-6">
-              <Avatar className="w-24 h-24 border-4 border-[#FFD369]/40 shadow-md">
+              <Avatar className="w-24 h-24 border-4 border-[var(--primary)]/40 shadow-md">
                 <AvatarImage />
-                <AvatarFallback className="bg-[#FFD369] text-[#1a0f1a] text-3xl font-bold">
+                <AvatarFallback className="bg-[var(--primary)] text-white text-3xl font-bold">
                   {user.name?.charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               <div>
-                <h2 className="text-2xl font-bold text-white">{user.name}</h2>
-                <p className="text-white/70">{user.email}</p>
+                <h2 className="text-2xl font-bold text-gray-900">{user.name}</h2>
+                <p className="text-gray-600">{user.email}</p>
               </div>
             </div>
           </CardHeader>
 
           {/* Account Summary */}
           <CardContent className="pt-8 pb-10 px-8">
-            <h3 className="text-xl font-semibold text-[#FFD369] mb-6">
+            <h3 className="text-xl font-semibold text-[var(--primary)] mb-6">
               Account Summary
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
@@ -198,7 +198,7 @@ useEffect(() => {
                   whileHover={{ scale: 1.05 }}
                   onClick={item.action}
                   transition={{ type: "spring", stiffness: 200 }}
-                  className={`rounded-xl p-5 text-center bg-gradient-to-br ${item.color} text-[#1a0f1a] shadow-lg cursor-pointer hover:shadow-[#FFD369]/40 hover:shadow-xl transition-all duration-200`}
+                  className={`rounded-xl p-5 text-center bg-gradient-to-br ${item.color} text-gray-900 shadow-lg cursor-pointer hover:shadow-[var(--primary)]/40 hover:shadow-xl transition-all duration-200`}
                 >
                   <div className="flex justify-center mb-3">{item.icon}</div>
                   <p className="text-2xl font-extrabold">{item.value}</p>
@@ -210,10 +210,10 @@ useEffect(() => {
         </Card>
 
         {/* Personal Info Section */}
-        <Card className="bg-[#2C1E4A]/80 backdrop-blur-md border border-[#FFD369]/30 rounded-2xl shadow-2xl">
+        <Card className="bg-white border border-gray-200 rounded-2xl shadow-xl">
           <CardContent className="p-8 space-y-8">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-xl font-semibold text-[#FFD369]">
+              <h3 className="text-xl font-semibold text-[var(--primary)]">
                 Personal Information
               </h3>
 
@@ -224,7 +224,7 @@ useEffect(() => {
                     variant="outline"
                     size="sm"
                     onClick={() => setIsEditing(true)}
-                    className="border-[#FFD369] text-[#FFD369] hover:bg-[#FFD369] hover:text-[#1a0f1a]"
+                    className="border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white"
                   >
                     <Edit className="w-4 h-4 mr-2" /> Edit
                   </Button>
@@ -241,7 +241,7 @@ useEffect(() => {
                     <Button
                       size="sm"
                       onClick={handleSave}
-                      className="bg-[#FFD369] text-[#1a0f1a] hover:bg-[#ffcb47]"
+                      className="bg-[var(--primary)] text-white hover:bg-[var(--primary)]/90"
                     >
                       <Save className="w-4 h-4 mr-2" /> Save
                     </Button>
@@ -254,18 +254,18 @@ useEffect(() => {
               {["name", "email", "phone", "address", "city", "state"].map(
                 (field) => (
                   <div key={field} className="space-y-2">
-                    <Label className="text-white capitalize">{field}</Label>
+                    <Label className="text-gray-700 capitalize">{field}</Label>
                     {isEditing ? (
                       <Input
                         value={(editedUser as any)[field] ?? ""}
                         onChange={(e) =>
                           handleInputChange(field as keyof User, e.target.value)
                         }
-                        className="bg-[#1a0f1a] border-[#FFD369]/30 text-white placeholder:text-gray-400"
+                        className="bg-gray-50 border-gray-200 text-gray-900 placeholder:text-gray-400"
                         placeholder={`Enter ${field}`}
                       />
                     ) : (
-                      <div className="p-3 bg-[#1a0f1a] rounded-md text-white border border-[#FFD369]/20">
+                      <div className="p-3 bg-gray-50 rounded-md text-gray-900 border border-gray-200">
                         {(user as any)[field] ?? "Not provided"}
                       </div>
                     )}
@@ -279,11 +279,11 @@ useEffect(() => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
-              className="border-t border-[#FFD369]/20 pt-6 flex flex-wrap gap-4"
+              className="border-t border-gray-200 pt-6 flex flex-wrap gap-4"
             >
               <Button
                 onClick={() => setCurrentPage("orders")}
-                className="bg-[#FFD369] text-[#1a0f1a] hover:bg-[#ffcb47] font-semibold px-6 py-2 flex items-center gap-2"
+                className="bg-[var(--primary)] text-white hover:bg-[var(--primary)]/90 font-semibold px-6 py-2 flex items-center gap-2"
               >
                 <Package className="w-4 h-4" /> My Orders
               </Button>

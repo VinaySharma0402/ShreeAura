@@ -97,7 +97,7 @@ export default function CartPage({ setCurrentPage }: CartPageProps) {
                   <Card className="bg-white border-gray-200 shadow-sm">
                     <CardContent className="p-4 flex flex-col sm:flex-row gap-4">
                       <ImageWithFallback
-                        src={item.image || item.imageUrl}
+                        src={item.imageUrl || item.image}
                         alt={item.name}
                         className="w-full sm:w-24 h-24 object-cover rounded-lg border border-gray-100"
                       />

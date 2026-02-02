@@ -49,4 +49,7 @@ export const HomePageApi = {
 
   // Blogs
   getAllBlogs: async () => axios.get(`${API_BASE_URL}/get-all-blogs`),
+
+  // Best Deals
+  getTopRateds: async () => axios.get(`${API_BASE_URL}/get-best-deals`),
 };

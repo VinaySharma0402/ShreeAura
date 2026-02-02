@@ -1,60 +1,49 @@
-import { useState } from "react";
-import { motion } from "motion/react";
+import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, Minus, Plus } from "lucide-react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { Button } from "./ui/button";
-
-// Mock Data from Screenshot
-const deals = [
-    {
-        id: 1,
-        name: "Hand Cream",
-        price: 2.99,
-        originalPrice: 0,
-        image: "https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&q=80&w=400", // Coffee Beans / Tea
-        badge: "Best Deal"
-    },
-    {
-        id: 2,
-        name: "Herbal Tea 16 ct.",
-        price: 3.99,
-        originalPrice: 0,
-        image: "https://images.unsplash.com/photo-1597481499750-3e6b22637e12?auto=format&fit=crop&q=80&w=400", // Herbal Tea box
-        badge: "Best Deal"
-    },
-    {
-        id: 3,
-        name: "Strawberries - 1lb",
-        price: 4.49,
-        originalPrice: 4.99,
-        image: "https://images.unsplash.com/photo-1587393855524-087f83d95bc9?auto=format&fit=crop&q=80&w=400", // Strawberries
-        badge: "Best Deal"
-    },
-    {
-        id: 4,
-        name: "Hass Avocados, Ready-to-Eat - 1lb",
-        price: 2.69,
-        originalPrice: 2.99,
-        image: "https://images.unsplash.com/photo-1523049673856-42bc318684a4?auto=format&fit=crop&q=80&w=400", // Avocado
-        badge: "Best Deal"
-    },
-    {
-        id: 5,
-        name: "Boneless Chicken Thighs - 1lb",
-        price: 4.04,
-        originalPrice: 4.49,
-        image: "https://images.unsplash.com/photo-1604503468506-a8da13d82791?auto=format&fit=crop&q=80&w=400", // Raw Chicken
-        badge: "Best Deal"
-    }
-];
-
+import { HomePageApi } from "./services/homepage";
 import { useCart } from "../contexts/CartContext";
 
-export default function BestDeals({ setCurrentPage }: { setCurrentPage: (page: string, options?: any) => void }) {
-    const [quantities, setQuantities] = useState<{ [key: number]: number }>({});
+interface TopRatedProduct {
+    productId: string;
+    name: string;
+    mrp: number;
+    imageUrl: string;
+}
+
+export default function TopRateds({ setCurrentPage }: { setCurrentPage: (page: string, options?: any) => void }) {
+    const [products, setProducts] = useState<TopRatedProduct[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [quantities, setQuantities] = useState<{ [key: string]: number }>({});
     const { addToCart } = useCart();
 
-    const updateQuantity = (id: number, delta: number) => {
+    useEffect(() => {
+        const fetchTopRated = async () => {
+            try {
+                const response = await HomePageApi.getTopRatedProducts();
+                // Handle different response structures
+                const data = Array.isArray(response.data) ? response.data : (response.data?.data || []);
+                // Map API data to only include name, mrp, and imageUrl
+                const mappedProducts = data.map((item: any) => ({
+                    productId: item.productId,
+                    name: item.name,
+                    mrp: item.mrp,
+                    imageUrl: item.imageUrl
+                }));
+                setProducts(mappedProducts);
+            } catch (error) {
+                console.error("Failed to fetch top rated products:", error);
+                setProducts([]);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchTopRated();
+    }, []);
+
+    const updateQuantity = (id: string, delta: number) => {
         setQuantities(prev => {
             const current = prev[id] || 1;
             const newValue = Math.max(1, current + delta);
@@ -62,19 +51,27 @@ export default function BestDeals({ setCurrentPage }: { setCurrentPage: (page: s
         });
     };
 
-    const handleAddToCart = (item: any) => {
-        const qty = quantities[item.id] || 1;
+    const handleAddToCart = (item: TopRatedProduct) => {
+        const qty = quantities[item.productId] || 1;
         addToCart({
-            productId: String(item.id),
+            productId: item.productId,
             name: item.name,
-            sellingPrice: item.price,
-            mrp: item.originalPrice || 0,
-            image: item.image,
+            sellingPrice: item.mrp,
+            mrp: item.mrp,
+            image: item.imageUrl,
             rating: 0,
             reviews: 0,
-            category: "Deals"
+            category: "Top Rated"
         }, qty);
     };
+
+    if (loading) {
+        return <div className="py-16 text-center">Loading Top Rated Products...</div>;
+    }
+
+    if (products.length === 0) {
+        return null; // Don't render if no products
+    }
 
     return (
         <section className="py-16 bg-white">
@@ -82,7 +79,7 @@ export default function BestDeals({ setCurrentPage }: { setCurrentPage: (page: s
 
                 {/* Header */}
                 <div className="flex items-center justify-between mb-8">
-                    <h2 className="text-3xl font-bold text-[#1c1c1c] font-['Outfit']">Best Deals</h2>
+                    <h2 className="text-3xl font-bold text-[#1c1c1c] font-['Outfit']">Top Rated</h2>
                     <div className="hidden md:flex gap-2">
                         <button className="p-2 rounded-full border border-gray-200 hover:bg-gray-100 transition-colors">
                             <ChevronLeft className="w-5 h-5 text-gray-600" />
@@ -95,18 +92,18 @@ export default function BestDeals({ setCurrentPage }: { setCurrentPage: (page: s
 
                 {/* Carousel / Grid */}
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-                    {deals.map((item) => (
-                        <div key={item.id} className="border border-gray-200 p-4 bg-white relative group">
+                    {products.map((item) => (
+                        <div key={item.productId} className="border border-gray-200 p-4 bg-white relative group">
 
                             {/* Badge */}
                             <div className="absolute top-4 left-4 z-10 bg-[#ED1C24] text-white text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wide">
-                                {item.badge}
+                                Top Rated
                             </div>
 
                             {/* Image */}
                             <div className="aspect-square mb-4 overflow-hidden">
                                 <ImageWithFallback
-                                    src={item.image}
+                                    src={item.imageUrl}
                                     alt={item.name}
                                     className="w-full h-full object-contain hover:scale-105 transition-transform duration-500"
                                 />
@@ -119,29 +116,24 @@ export default function BestDeals({ setCurrentPage }: { setCurrentPage: (page: s
                                 </h3>
                                 <div className="flex items-baseline gap-2">
                                     <span className="text-[#ED1C24] font-bold text-lg font-['Outfit']">
-                                        ${item.price.toFixed(2)}
+                                        ₹{item.mrp.toFixed(2)}
                                     </span>
-                                    {item.originalPrice > 0 && (
-                                        <span className="text-gray-400 text-sm line-through font-['Outfit']">
-                                            ${item.originalPrice.toFixed(2)}
-                                        </span>
-                                    )}
                                 </div>
                             </div>
 
                             {/* Quantity Stepper */}
                             <div className="flex items-center border border-gray-300 rounded-none h-10 mb-3">
                                 <button
-                                    onClick={() => updateQuantity(item.id, -1)}
+                                    onClick={() => updateQuantity(item.productId, -1)}
                                     className="w-10 h-full flex items-center justify-center text-gray-500 hover:bg-gray-50"
                                 >
                                     <Minus className="w-3 h-3" />
                                 </button>
                                 <div className="flex-1 flex items-center justify-center text-sm font-medium text-gray-900">
-                                    {quantities[item.id] || 1}
+                                    {quantities[item.productId] || 1}
                                 </div>
                                 <button
-                                    onClick={() => updateQuantity(item.id, 1)}
+                                    onClick={() => updateQuantity(item.productId, 1)}
                                     className="w-10 h-full flex items-center justify-center text-gray-500 hover:bg-gray-50"
                                 >
                                     <Plus className="w-3 h-3" />
@@ -166,7 +158,7 @@ export default function BestDeals({ setCurrentPage }: { setCurrentPage: (page: s
                         onClick={() => setCurrentPage("search")}
                         className="bg-[#ED1C24] hover:bg-red-700 text-white px-8 py-6 rounded-full font-bold text-lg shadow-md transition-all font-['Outfit']"
                     >
-                        Shop Best Deals
+                        Shop Top Rated
                     </Button>
                 </div>
 

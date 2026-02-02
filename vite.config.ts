@@ -8,10 +8,10 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://api.shreeaura.in',
+        target: 'https://api.shreeaura.in',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
-        secure: false,
+        secure: true,
       },
     },
   },

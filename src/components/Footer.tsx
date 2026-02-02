@@ -14,10 +14,10 @@ import { motion } from "motion/react";
 
 export default function Footer() {
   return (
-    <footer className="relative overflow-hidden text-[#FFD369] bg-gradient-to-b from-[#300020] via-[#4B1C3F] to-[#300020]">
+    <footer className="relative overflow-hidden text-gray-600 bg-gray-50 border-t border-gray-200">
       {/* Soft Glow Background */}
       <div className="absolute inset-0 -z-10">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-[#FFD369]/20 blur-[150px] rounded-full opacity-30" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-[var(--primary)]/5 blur-[150px] rounded-full opacity-30" />
       </div>
 
       {/* Main Footer Content */}
@@ -31,10 +31,10 @@ export default function Footer() {
         >
           {/* Brand Info */}
           <div className="space-y-4">
-            <h3 className="text-2xl font-bold text-white tracking-wide">
+            <h3 className="text-2xl font-bold text-[var(--primary)] tracking-wide">
               Shree Aura
             </h3>
-            <p className="text-sm text-[#FFD369]/80 leading-relaxed">
+            <p className="text-sm text-gray-600 leading-relaxed">
               Your destination for premium beauty and cosmetics. Discover luxury
               products that enhance your natural glow and confidence.
             </p>
@@ -53,9 +53,9 @@ export default function Footer() {
                 >
                   <motion.div
                     whileHover={{ scale: 1.2, rotate: 5 }}
-                    className="bg-white/10 p-2 rounded-full hover:bg-[#FFD369]/30 transition-colors cursor-pointer"
+                    className="bg-[var(--primary)]/10 p-2 rounded-full hover:bg-[var(--primary)]/20 transition-colors cursor-pointer"
                   >
-                    <Icon className="w-5 h-5 text-[#FFD369]" />
+                    <Icon className="w-5 h-5 text-[var(--primary)]" />
                   </motion.div>
                 </a>
               ))}
@@ -65,7 +65,7 @@ export default function Footer() {
 
           {/* Quick Links */}
           <div className="space-y-4">
-            <h4 className="font-semibold text-white text-lg relative after:content-[''] after:absolute after:left-0 after:bottom-[-6px] after:w-10 after:h-[2px] after:bg-[#FFD369]">
+            <h4 className="font-semibold text-gray-900 text-lg relative after:content-[''] after:absolute after:left-0 after:bottom-[-6px] after:w-10 after:h-[2px] after:bg-[var(--primary)]">
               Quick Links
             </h4>
             <ul className="space-y-2 text-sm">
@@ -77,7 +77,7 @@ export default function Footer() {
                 >
                   <a
                     href={`/search?category=${encodeURIComponent(link)}`}
-                    className="hover:text-white text-[#FFD369]/80 transition-colors"
+                    className="hover:text-[var(--primary)] text-gray-600 transition-colors"
                   >
                     {link}
                   </a>
@@ -89,14 +89,14 @@ export default function Footer() {
 
           {/* Customer Care */}
           <div className="space-y-4">
-            <h4 className="font-semibold text-white text-lg relative after:content-[''] after:absolute after:left-0 after:bottom-[-6px] after:w-10 after:h-[2px] after:bg-[#FFD369]">
+            <h4 className="font-semibold text-gray-900 text-lg relative after:content-[''] after:absolute after:left-0 after:bottom-[-6px] after:w-10 after:h-[2px] after:bg-[var(--primary)]">
               Customer Care
             </h4>
             <ul className="space-y-2 text-sm">
               <motion.li whileHover={{ x: 6 }} className="transition-all duration-300">
                 <a
                   href="/contact.html"
-                  className="hover:text-white text-[#FFD369]/80 transition-colors"
+                  className="hover:text-[var(--primary)] text-gray-600 transition-colors"
                 >
                   Contact Us
                 </a>
@@ -105,7 +105,7 @@ export default function Footer() {
               <motion.li whileHover={{ x: 6 }} className="transition-all duration-300">
                 <a
                   href="/shipping.html"
-                  className="hover:text-white text-[#FFD369]/80 transition-colors"
+                  className="hover:text-[var(--primary)] text-gray-600 transition-colors"
                 >
                   Shipping Info
                 </a>
@@ -114,7 +114,7 @@ export default function Footer() {
               <motion.li whileHover={{ x: 6 }} className="transition-all duration-300">
                 <a
                   href="/refund.html"
-                  className="hover:text-white text-[#FFD369]/80 transition-colors"
+                  className="hover:text-[var(--primary)] text-gray-600 transition-colors"
                 >
                   Returns & Exchanges
                 </a>
@@ -134,18 +134,18 @@ export default function Footer() {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.3 }}
           viewport={{ once: true }}
-          className="mt-12 pt-8 border-t border-[#FFD369]/20 grid grid-cols-1 md:grid-cols-3 gap-6 text-sm"
+          className="mt-12 pt-8 border-t border-gray-200 grid grid-cols-1 md:grid-cols-3 gap-6 text-sm"
         >
           <div className="flex items-center space-x-2 justify-center md:justify-start">
-            <Phone className="w-4 h-4 text-[#FFD369]" />
+            <Phone className="w-4 h-4 text-[var(--primary)]" />
             <span>+91 85440 90329</span>
           </div>
           <div className="flex items-center space-x-2 justify-center md:justify-start">
-            <Mail className="w-4 h-4 text-[#FFD369]" />
+            <Mail className="w-4 h-4 text-[var(--primary)]" />
             <span>support@shreeaura.in</span>
           </div>
           <div className="flex items-center space-x-2 justify-center md:justify-start">
-            <MapPin className="w-4 h-4 text-[#FFD369]" />
+            <MapPin className="w-4 h-4 text-[var(--primary)]" />
             <span>Maurya Lok Complex, Dak Bangla Chauraha</span>
           </div>
         </motion.div>
@@ -157,26 +157,26 @@ export default function Footer() {
         whileInView={{ opacity: 1 }}
         transition={{ duration: 1 }}
         viewport={{ once: true }}
-        className="bg-[#2D0D28] border-t border-[#FFD369]/20"
+        className="bg-gray-100 border-t border-gray-200"
       >
-        <div className="container mx-auto px-4 py-5 flex flex-col md:flex-row items-center justify-between text-sm text-[#FFD369]/80 space-y-3 md:space-y-0">
+        <div className="container mx-auto px-4 py-5 flex flex-col md:flex-row items-center justify-between text-sm text-gray-600 space-y-3 md:space-y-0">
           <div>© 2025 Shreeaura.in. All rights reserved.</div>
           <div className="flex space-x-5">
             <a
               href="team"
-              className="hover:text-white transition-colors duration-300"
+              className="hover:text-[var(--primary)] transition-colors duration-300"
             >
               Team
             </a>
             <a
               href="/privacy.html"
-              className="hover:text-white transition-colors duration-300"
+              className="hover:text-[var(--primary)] transition-colors duration-300"
             >
               Privacy Policy
             </a>
             <a
               href="/terms.html"
-              className="hover:text-white transition-colors duration-300"
+              className="hover:text-[var(--primary)] transition-colors duration-300"
             >
               Terms of Service
             </a>

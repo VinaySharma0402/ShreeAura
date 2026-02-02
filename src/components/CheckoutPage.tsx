@@ -32,11 +32,11 @@ interface CheckoutPageProps {
 }
 
 export default function CheckoutPage({ setCurrentPage }: CheckoutPageProps) {
-  const { items, clearCart,cartTotal } = useCart();
+  const { items, clearCart, cartTotal } = useCart();
   const { user } = useAuth();
   const subtotal = cartTotal;
-  
-  
+
+
   const total = subtotal;
 
   const [isProcessing, setIsProcessing] = useState(false);
@@ -50,7 +50,7 @@ export default function CheckoutPage({ setCurrentPage }: CheckoutPageProps) {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [location.pathname]);
-    console.log(suser+"-----------------"+transactionId);
+  console.log(suser + "-----------------" + transactionId);
   const [shipping, setShipping] = useState({
     name: "",
     email: "",
@@ -173,7 +173,7 @@ export default function CheckoutPage({ setCurrentPage }: CheckoutPageProps) {
               response.razorpay_payment_id
             );
             try {
-               setIsProcessing(true);
+              setIsProcessing(true);
               await placeOrder(
                 { ...orderPayload, paymentMethod: "online" },
                 coords.lat,
@@ -265,40 +265,40 @@ export default function CheckoutPage({ setCurrentPage }: CheckoutPageProps) {
   };
 
   return (
-    <div className="relative min-h-screen bg-[#1a0f1a] flex items-center justify-center py-12 px-4">
+    <div className="relative min-h-screen bg-[var(--background)] flex items-center justify-center py-12 px-4">
       {/* 🔄 Loader Overlay */}
       {isProcessing && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm z-50">
-          <div className="w-12 h-12 border-4 border-[#FFD369] border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-[#FFD369] mt-3 font-medium">Processing...</p>
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/80 backdrop-blur-sm z-50">
+          <div className="w-12 h-12 border-4 border-[var(--primary)] border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-[var(--primary)] mt-3 font-medium">Processing...</p>
         </div>
       )}
 
-      <div className="bg-[#2C1E4A]/90 backdrop-blur-md p-8 rounded-2xl w-full max-w-2xl border border-[#FFD369]/30 shadow-xl shadow-black/40 relative z-10">
-        <h2 className="text-3xl font-bold text-[#FFD369] text-center mb-8">Checkout</h2>
+      <div className="bg-white p-8 rounded-2xl w-full max-w-2xl border border-gray-200 shadow-xl relative z-10">
+        <h2 className="text-3xl font-bold text-[var(--primary)] text-center mb-8">Checkout</h2>
 
         {/* Shipping Form */}
         <div className="space-y-5 mb-8">
-          <h3 className="text-xl font-semibold text-[#FFD369]">Shipping Information</h3>
+          <h3 className="text-xl font-semibold text-[var(--primary)]">Shipping Information</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {["name", "email", "phone", "address", "pincode"].map((field) => (
               <div key={field} className="flex flex-col">
-                <Label className="capitalize text-white/80 mb-1">{field}</Label>
+                <Label className="capitalize text-gray-700 mb-1">{field}</Label>
                 <Input
                   value={shipping[field as keyof typeof shipping] || ""}
                   onChange={(e) => setShipping({ ...shipping, [field]: e.target.value })}
-                  className="bg-[#1a0f1a] border border-[#FFD369]/30 text-white rounded-md p-2"
+                  className="bg-gray-50 border border-gray-200 text-gray-900 rounded-md p-2"
                   placeholder={`Enter ${field}`}
                 />
               </div>
             ))}
 
             <div className="flex flex-col">
-              <Label className="text-white/80 mb-1">State</Label>
+              <Label className="text-gray-700 mb-1">State</Label>
               <select
                 value={shipping.state}
                 onChange={handleStateChange}
-                className="bg-[#1a0f1a] border border-[#FFD369]/30 text-white rounded-md p-2"
+                className="bg-gray-50 border border-gray-200 text-gray-900 rounded-md p-2"
               >
                 <option value="">Select State</option>
                 <option value="Bihar">Bihar</option>
@@ -307,11 +307,11 @@ export default function CheckoutPage({ setCurrentPage }: CheckoutPageProps) {
             </div>
 
             <div className="flex flex-col">
-              <Label className="text-white/80 mb-1">City</Label>
+              <Label className="text-gray-700 mb-1">City</Label>
               <select
                 value={shipping.city}
                 onChange={handleCityChange}
-                className="bg-[#1a0f1a] border border-[#FFD369]/30 text-white rounded-md p-2"
+                className="bg-gray-50 border border-gray-200 text-gray-900 rounded-md p-2"
               >
                 <option value="">Select City</option>
                 <option value="Patna">Patna</option>
@@ -326,9 +326,9 @@ export default function CheckoutPage({ setCurrentPage }: CheckoutPageProps) {
 
         {/* Payment Method */}
         <div className="mb-8 space-y-3">
-          <h3 className="text-xl font-semibold text-[#FFD369]">Payment Method</h3>
+          <h3 className="text-xl font-semibold text-[var(--primary)]">Payment Method</h3>
           <div className="flex flex-col md:flex-row gap-4">
-            <label className="flex items-center space-x-2 text-white">
+            <label className="flex items-center space-x-2 text-gray-900">
               <input
                 type="radio"
                 name="payment"
@@ -338,7 +338,7 @@ export default function CheckoutPage({ setCurrentPage }: CheckoutPageProps) {
               />
               <span>Cash on Delivery</span>
             </label>
-            <label className="flex items-center space-x-2 text-white">
+            <label className="flex items-center space-x-2 text-gray-900">
               <input
                 type="radio"
                 name="payment"
@@ -353,30 +353,30 @@ export default function CheckoutPage({ setCurrentPage }: CheckoutPageProps) {
 
         {/* Location */}
         <div className="mb-8 space-y-2">
-          <h3 className="text-xl font-semibold text-[#FFD369]">Location</h3>
+          <h3 className="text-xl font-semibold text-[var(--primary)]">Location</h3>
           <Button
             onClick={fetchLocation}
-            className="w-full bg-[#4B1C3F] text-[#FFD369] hover:bg-[#FFD369]/20"
+            className="w-full bg-[var(--primary)]/10 text-[var(--primary)] hover:bg-[var(--primary)]/20"
           >
             📍 Share My Location
           </Button>
-          <p className="text-white/70 text-sm mt-1">
+          <p className="text-gray-600 text-sm mt-1">
             Please share your location — it will help our delivery partner reach you faster!
           </p>
         </div>
 
         {/* Summary */}
-        <div className="bg-[#1a0f1a] border border-[#FFD369]/30 rounded-xl p-5 mb-8">
-          <h3 className="text-lg font-semibold text-[#FFD369] mb-3">Order Summary</h3>
-          <div className="space-y-2 text-white">
+        <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 mb-8">
+          <h3 className="text-lg font-semibold text-[var(--primary)] mb-3">Order Summary</h3>
+          <div className="space-y-2 text-gray-900">
             <div className="flex justify-between">
               <span>Subtotal</span>
               <span>₹{subtotal.toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
-              
+
             </div>
-            <div className="flex justify-between text-lg font-bold text-[#FFD369] pt-2 border-t border-white/10">
+            <div className="flex justify-between text-lg font-bold text-[var(--primary)] pt-2 border-t border-gray-200">
               <span>Total</span>
               <span>₹{total.toFixed(2)}</span>
             </div>
@@ -386,11 +386,10 @@ export default function CheckoutPage({ setCurrentPage }: CheckoutPageProps) {
         {/* Place Order Button */}
         <Button
           onClick={handlePlaceOrder}
-          className={`w-full py-3 text-lg font-semibold ${
-            isOrderDisabled
-              ? "bg-gray-500 cursor-not-allowed"
-              : "bg-[#FFD369] text-[#1a0f1a] hover:bg-[#ffcb47]"
-          }`}
+          className={`w-full py-3 text-lg font-semibold ${isOrderDisabled
+              ? "bg-gray-300 cursor-not-allowed text-gray-500"
+              : "bg-[var(--primary)] text-white hover:bg-[var(--primary)]/90"
+            }`}
         >
           {isProcessing ? "Processing..." : `Place Order ₹${total.toFixed(2)}`}
         </Button>
@@ -398,63 +397,63 @@ export default function CheckoutPage({ setCurrentPage }: CheckoutPageProps) {
 
       {/* ✅ Success Dialog */}
       <Dialog open={showSuccessDialog} onOpenChange={handleSuccessClose}>
-  <AnimatePresence>
-    {showSuccessDialog && (
-      <>
-        {/* 🎉 Confetti burst */}
-        <Confetti numberOfPieces={150} recycle={false} />
+        <AnimatePresence>
+          {showSuccessDialog && (
+            <>
+              {/* 🎉 Confetti burst */}
+              <Confetti numberOfPieces={150} recycle={false} />
 
-        <DialogContent className="bg-linear-to-b from-[#2C1E4A] to-[#1a1230] border border-[#FFD369]/70 shadow-2xl rounded-2xl text-center p-8 animate-in fade-in zoom-in duration-300">
+              <DialogContent className="bg-white border border-gray-200 shadow-2xl rounded-2xl text-center p-8 animate-in fade-in zoom-in duration-300">
 
-          {/* Animated checkmark circle */}
-          <motion.div
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ type: "spring", stiffness: 120, damping: 10 }}
-            className="w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center
-              bg-[#FFD369] shadow-[0_0_25px_#FFD369]"
-          >
-            <motion.span
-              initial={{ pathLength: 0 }}
-              animate={{ pathLength: 1 }}
-              transition={{ duration: 0.8 }}
-              className="text-[#2C1E4A] text-4xl font-extrabold"
-            >
-              ✓
-            </motion.span>
-          </motion.div>
+                {/* Animated checkmark circle */}
+                <motion.div
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ type: "spring", stiffness: 120, damping: 10 }}
+                  className="w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center
+              bg-[var(--primary)] shadow-[0_0_25px_var(--primary)]"
+                >
+                  <motion.span
+                    initial={{ pathLength: 0 }}
+                    animate={{ pathLength: 1 }}
+                    transition={{ duration: 0.8 }}
+                    className="text-white text-4xl font-extrabold"
+                  >
+                    ✓
+                  </motion.span>
+                </motion.div>
 
-          <DialogHeader>
-            <DialogTitle className="text-[#FFD369] text-3xl font-bold drop-shadow-md">
-              🎉 Order Successfully Placed!
-            </DialogTitle>
+                <DialogHeader>
+                  <DialogTitle className="text-[var(--primary)] text-3xl font-bold drop-shadow-md">
+                    🎉 Order Successfully Placed!
+                  </DialogTitle>
 
-            <DialogDescription className="text-white/90 mt-3 text-lg leading-relaxed">
-              Thank you for choosing <b className="text-[#FFD369]">RozoMeal</b>!  
-              Your delicious order is on its way.
-            </DialogDescription>
-          </DialogHeader>
+                  <DialogDescription className="text-gray-700 mt-3 text-lg leading-relaxed">
+                    Thank you for choosing <b className="text-[var(--primary)]">RozoMeal</b>!
+                    Your delicious order is on its way.
+                  </DialogDescription>
+                </DialogHeader>
 
-          {/* Animated button */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            <Button
-              onClick={handleSuccessClose}
-              className="mt-6 px-6 py-3 bg-[#FFD369] text-[#1a0f1a] text-lg rounded-xl font-semibold
-                hover:bg-[#ffcb47] hover:scale-[1.05] transition-all shadow-lg"
-            >
-              View My Orders
-            </Button>
-          </motion.div>
+                {/* Animated button */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  <Button
+                    onClick={handleSuccessClose}
+                    className="mt-6 px-6 py-3 bg-[var(--primary)] text-white text-lg rounded-xl font-semibold
+                hover:bg-[var(--primary)]/90 hover:scale-[1.05] transition-all shadow-lg"
+                  >
+                    View My Orders
+                  </Button>
+                </motion.div>
 
-        </DialogContent>
-      </>
-    )}
-  </AnimatePresence>
-</Dialog>
+              </DialogContent>
+            </>
+          )}
+        </AnimatePresence>
+      </Dialog>
     </div>
   );
 }

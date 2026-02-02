@@ -27,13 +27,13 @@ export default function PriceProducts({
   ];
 
   return (
-    <div className="relative py-7 px-6 bg-gradient-to-br from-[#1a0f1a] via-[#231134] to-[#2C1E4A] text-center overflow-hidden">
+    <div className="relative py-7 px-6 bg-[var(--background)] text-center overflow-hidden">
       {/* Floating sparkles for premium aura */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: [0.2, 0.5, 0.2] }}
         transition={{ repeat: Infinity, duration: 6 }}
-        className="absolute top-10 left-10 text-[#FFD369]/40 text-4xl"
+        className="absolute top-10 left-10 text-[var(--primary)]/40 text-4xl"
       >
         <Sparkles />
       </motion.div>
@@ -41,7 +41,7 @@ export default function PriceProducts({
         initial={{ opacity: 0 }}
         animate={{ opacity: [0.2, 0.5, 0.2] }}
         transition={{ repeat: Infinity, duration: 6, delay: 3 }}
-        className="absolute bottom-10 right-10 text-[#FFD369]/40 text-4xl"
+        className="absolute bottom-10 right-10 text-[var(--primary)]/40 text-4xl"
       >
         <Sparkles />
       </motion.div>
@@ -50,11 +50,11 @@ export default function PriceProducts({
         initial={{ opacity: 0, y: -20 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="text-3xl md:text-4xl font-extrabold text-[#FFD369] mb-3"
+        className="text-3xl md:text-4xl font-extrabold text-[var(--primary)] mb-3"
       >
         Explore Our Exclusive Combos
       </motion.h2>
-      <p className="text-white/70 mb-10 max-w-xl mx-auto text-sm md:text-base">
+      <p className="text-gray-600 mb-10 max-w-xl mx-auto text-sm md:text-base">
         Experience curated collections crafted for every mood, moment, and
         style. Choose your vibe — and let the magic unfold.
       </p>
@@ -73,30 +73,30 @@ export default function PriceProducts({
               boxShadow: "0 0 30px rgba(255,211,105,0.3)",
             }}
             onClick={() => onSelectPrice(product.price)}
-            className="group relative rounded-2xl border border-[#FFD369]/30 bg-gradient-to-br from-[#2C1E4A]/70 to-[#3B1E58]/80 backdrop-blur-md transition-all duration-500 p-8 cursor-pointer overflow-hidden"
+            className="group relative rounded-2xl border border-gray-200 bg-white shadow-md backdrop-blur-md transition-all duration-500 p-8 cursor-pointer overflow-hidden hover:shadow-xl"
           >
             {/* Floating shimmer overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-transparent via-[#FFD369]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="absolute inset-0 bg-gradient-to-t from-transparent via-[var(--primary)]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
             <motion.div
               animate={{ y: [0, -5, 0] }}
               transition={{ repeat: Infinity, duration: 3, delay: index * 0.2 }}
               className="flex flex-col items-center justify-center space-y-3"
             >
-              <p className="text-4xl font-extrabold text-[#FFD369] tracking-wide drop-shadow-md">
+              <p className="text-4xl font-extrabold text-[var(--primary)] tracking-wide drop-shadow-md">
                 {product.currency || "₹"}
                 {product.price}
               </p>
-              <p className="text-white/80 text-sm italic font-medium">
+              <p className="text-gray-600 text-sm italic font-medium">
                 {slogans[index % slogans.length]}
               </p>
             </motion.div>
 
             <motion.button
               whileTap={{ scale: 0.95 }}
-              className="mt-6 px-6 py-2 rounded-xl bg-[#FFD369] text-[#1a0f1a] font-semibold text-sm tracking-wide transition-all duration-300 hover:bg-[#ffcc4d] hover:shadow-[0_0_15px_rgba(255,211,105,0.5)]"
-              
-           >
+              className="mt-6 px-6 py-2 rounded-xl bg-[var(--primary)] text-white font-semibold text-sm tracking-wide transition-all duration-300 hover:bg-[var(--primary)]/90 hover:shadow-lg"
+
+            >
               View Combo
             </motion.button>
           </motion.div>
@@ -107,7 +107,7 @@ export default function PriceProducts({
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.5 }}
-        className="text-white/60 text-sm mt-12 italic"
+        className="text-gray-500 text-sm mt-12 italic"
       >
         ✨ Hand-picked beauty experiences crafted for your everyday glow ✨
       </motion.p>

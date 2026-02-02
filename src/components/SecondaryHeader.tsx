@@ -6,41 +6,25 @@ interface SecondaryHeaderProps {
 
 export default function SecondaryHeader({ setCurrentPage }: SecondaryHeaderProps) {
     const categories = [
-        "Deals",
-        "Food",
-        "Beverages",
-        "Household",
-        "Personal Care",
+        { name: "Deals", action: () => setCurrentPage("search", { category: "Deals" }) },
+        { name: "Top Rated", action: () => scrollToSection("top-rated") },
+        { name: "Popular Categories", action: () => scrollToSection("popular-categories") },
+        { name: "Shop by Name", action: () => scrollToSection("shop-by-name") },
     ];
 
-    const foodSubcategories = [
-        "Vegetables",
-        "Fruit",
-        "Meat & Poultry",
-        "Fish & Seafood",
-        "Bakery",
-        "Dairy & Eggs",
-        "Pastas & Grains",
-        "Cereals & Snacks"
-    ];
+    // Function to scroll to a section on the home page
+    const scrollToSection = (sectionId: string) => {
+        // First navigate to home page if not already there
+        setCurrentPage("home");
 
-    const beveragesSubcategories = [
-        "Tea",
-        "Coffee",
-        "Soft Drinks",
-        "Beer",
-        "Wine"
-    ];
-
-    const householdSubcategories = [
-        "Home & Kitchen",
-        "Cleaning Supplies"
-    ];
-
-    const personalCareSubcategories = [
-        "Personal Hygiene",
-        "Babies"
-    ];
+        // Then scroll to the section after a short delay
+        setTimeout(() => {
+            const element = document.getElementById(sectionId);
+            if (element) {
+                element.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
+        }, 100);
+    };
 
     return (
         <div className="bg-white border-b border-gray-100 hidden md:block relative z-40">
@@ -50,91 +34,11 @@ export default function SecondaryHeader({ setCurrentPage }: SecondaryHeaderProps
                     {categories.map((cat, index) => (
                         <div key={index} className="relative group h-full">
                             <button
-                                onClick={() => setCurrentPage("search", { category: cat })}
+                                onClick={cat.action}
                                 className="text-[15px] font-normal text-gray-700 hover:text-[var(--primary)] transition-colors tracking-wide font-['Outfit'] py-2"
                             >
-                                {cat}
+                                {cat.name}
                             </button>
-
-                            {/* Dropdown for Food */}
-                            {cat === "Food" && (
-                                <div className="absolute top-full left-0 pt-0 w-56 hidden group-hover:block z-50">
-                                    <div className="bg-white border border-gray-100 shadow-xl py-2 flex flex-col items-start rounded-sm">
-                                        {foodSubcategories.map((sub) => (
-                                            <button
-                                                key={sub}
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    setCurrentPage("search", { category: sub });
-                                                }}
-                                                className="w-full text-left px-6 py-2.5 text-[15px] text-gray-700 hover:text-[var(--primary)] hover:bg-gray-50 transition-colors font-['Outfit']"
-                                            >
-                                                {sub}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Dropdown for Beverages */}
-                            {cat === "Beverages" && (
-                                <div className="absolute top-full left-0 pt-0 w-56 hidden group-hover:block z-50">
-                                    <div className="bg-white border border-gray-100 shadow-xl py-2 flex flex-col items-start rounded-sm">
-                                        {beveragesSubcategories.map((sub) => (
-                                            <button
-                                                key={sub}
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    setCurrentPage("search", { category: sub });
-                                                }}
-                                                className="w-full text-left px-6 py-2.5 text-[15px] text-gray-700 hover:text-[var(--primary)] hover:bg-gray-50 transition-colors font-['Outfit']"
-                                            >
-                                                {sub}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Dropdown for Household */}
-                            {cat === "Household" && (
-                                <div className="absolute top-full left-0 pt-0 w-56 hidden group-hover:block z-50">
-                                    <div className="bg-white border border-gray-100 shadow-xl py-2 flex flex-col items-start rounded-sm">
-                                        {householdSubcategories.map((sub) => (
-                                            <button
-                                                key={sub}
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    setCurrentPage("search", { category: sub });
-                                                }}
-                                                className="w-full text-left px-6 py-2.5 text-[15px] text-gray-700 hover:text-[var(--primary)] hover:bg-gray-50 transition-colors font-['Outfit']"
-                                            >
-                                                {sub}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Dropdown for Personal Care */}
-                            {cat === "Personal Care" && (
-                                <div className="absolute top-full left-0 pt-0 w-56 hidden group-hover:block z-50">
-                                    <div className="bg-white border border-gray-100 shadow-xl py-2 flex flex-col items-start rounded-sm">
-                                        {personalCareSubcategories.map((sub) => (
-                                            <button
-                                                key={sub}
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    setCurrentPage("search", { category: sub });
-                                                }}
-                                                className="w-full text-left px-6 py-2.5 text-[15px] text-gray-700 hover:text-[var(--primary)] hover:bg-gray-50 transition-colors font-['Outfit']"
-                                            >
-                                                {sub}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
                         </div>
                     ))}
                 </div>
@@ -143,7 +47,7 @@ export default function SecondaryHeader({ setCurrentPage }: SecondaryHeaderProps
                 <motion.button
                     onClick={() => setCurrentPage("orders")}
                     whileHover={{ scale: 1.05 }}
-                    className="text-[15px] font-normal text-red-500 hover:text-red-600 transition-colors tracking-wide font-['Outfit']"
+                    className="text-[15px] font-normal text-gray-700 hover:text-[var(--primary)] transition-colors tracking-wide font-['Outfit']"
                 >
                     My Orders
                 </motion.button>
@@ -151,3 +55,4 @@ export default function SecondaryHeader({ setCurrentPage }: SecondaryHeaderProps
         </div>
     );
 }
+

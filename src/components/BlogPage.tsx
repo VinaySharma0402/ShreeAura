@@ -77,9 +77,9 @@ export default function BlogPage() {
   }, [selectedPost]);
 
   return (
-    <div className="min-h-screen bg-[#12091E] text-white relative overflow-hidden">
+    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] relative overflow-hidden">
       {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-900/40 via-pink-700/30 to-indigo-900/40 blur-3xl -z-10" />
+      <div className="absolute inset-0 bg-gradient-to-br from-[var(--primary)]/5 via-transparent to-[var(--secondary)]/5 blur-3xl -z-10" />
 
       {/* Hero Section */}
       <section className="py-16 text-center">
@@ -87,7 +87,7 @@ export default function BlogPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-4xl lg:text-5xl font-extrabold text-[#FFD369] mb-4"
+          className="text-4xl lg:text-5xl font-extrabold text-[var(--primary)] mb-4"
         >
           Beauty & Lifestyle Blog
         </motion.h1>
@@ -95,7 +95,7 @@ export default function BlogPage() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1 }}
-          className="text-lg lg:text-xl text-white/80 max-w-2xl mx-auto"
+          className="text-lg lg:text-xl text-gray-600 max-w-2xl mx-auto"
         >
           Explore beauty tips, skincare routines, and wellness inspiration.
         </motion.p>
@@ -103,11 +103,11 @@ export default function BlogPage() {
 
       {/* Loading / Empty State */}
       {loading ? (
-        <p className="text-center text-white/70 text-lg pb-20">
+        <p className="text-center text-gray-500 text-lg pb-20">
           Loading blogs...
         </p>
       ) : blogs.length === 0 ? (
-        <p className="text-center text-white/70 text-lg pb-20">
+        <p className="text-center text-gray-500 text-lg pb-20">
           No blogs available right now.
         </p>
       ) : (
@@ -122,30 +122,30 @@ export default function BlogPage() {
               whileHover={{ scale: 1.04 }}
               className="group"
             >
-              <Card className="bg-white/10 border border-white/10 backdrop-blur-md rounded-2xl overflow-hidden shadow-lg hover:shadow-[0_0_25px_rgba(255,211,105,0.3)] transition-all duration-500 flex flex-col">
+              <Card className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-500 flex flex-col">
                 <div className="overflow-hidden relative">
                   <ImageWithFallback
                     src={post.imageUrl}
                     alt={post.title}
                     className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
                 </div>
                 <CardContent className="p-5 flex flex-col flex-1">
-                  <p className="text-sm text-[#FFD369] mb-2 font-medium">
+                  <p className="text-sm text-[var(--primary)] mb-2 font-medium">
                     {new Date(post.createAt).toLocaleDateString("en-IN", {
                       year: "numeric",
                       month: "short",
                       day: "numeric",
                     })}
                   </p>
-                  <h3 className="font-bold text-xl mb-2">{post.title}</h3>
-                  <p className="text-white/70 text-sm flex-1 mb-4 line-clamp-3">
+                  <h3 className="font-bold text-xl mb-2 text-gray-900">{post.title}</h3>
+                  <p className="text-gray-600 text-sm flex-1 mb-4 line-clamp-3">
                     {post.description?.slice(0, 120)}...
                   </p>
                   <Button
                     variant="ghost"
-                    className="text-[#FFD369] hover:text-white hover:bg-[#FFD369]/10 w-fit"
+                    className="text-[var(--primary)] hover:text-[var(--primary)]/80 hover:bg-[var(--primary)]/10 w-fit"
                     onClick={() => setSelectedPost(post)}
                   >
                     Read More <ArrowRight className="ml-2 w-4 h-4" />
@@ -159,9 +159,9 @@ export default function BlogPage() {
 
       {/* Blog Modal */}
       <Dialog open={!!selectedPost} onOpenChange={() => setSelectedPost(null)}>
-        <DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden bg-[#1E1432] text-white border border-[#FFD369]/20 rounded-2xl p-0 flex flex-col">
-          <DialogHeader className="p-6 pb-3 border-b border-[#FFD369]/20">
-            <DialogTitle className="text-2xl font-bold text-[#FFD369]">
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden bg-white text-gray-900 border border-gray-200 rounded-2xl p-0 flex flex-col">
+          <DialogHeader className="p-6 pb-3 border-b border-gray-200">
+            <DialogTitle className="text-2xl font-bold text-[var(--primary)]">
               {selectedPost?.title}
             </DialogTitle>
           </DialogHeader>
@@ -176,7 +176,7 @@ export default function BlogPage() {
                     className="w-full h-64 object-cover rounded-lg"
                   />
                 </div>
-                <p className="text-white/80 leading-relaxed whitespace-pre-line text-sm sm:text-base">
+                <p className="text-gray-700 leading-relaxed whitespace-pre-line text-sm sm:text-base">
                   {selectedPost.description}
                 </p>
               </>
@@ -185,7 +185,7 @@ export default function BlogPage() {
             {/* Scroll Indicator */}
             <div
               id="scroll-indicator"
-              className="absolute bottom-4 left-1/2 -translate-x-1/2 text-[#FFD369]/70 transition-opacity duration-500 animate-bounce"
+              className="absolute bottom-4 left-1/2 -translate-x-1/2 text-[var(--primary)]/70 transition-opacity duration-500 animate-bounce"
             >
               <ArrowRight className="w-6 h-6 rotate-90" strokeWidth={2.5} />
             </div>

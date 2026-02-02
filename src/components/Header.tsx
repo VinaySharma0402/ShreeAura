@@ -175,12 +175,12 @@ export default function Header({ setCurrentPage }: HeaderProps) {
 
         {/* Right Section */}
         <div className="flex items-center gap-6 relative">
-          {/* Seller */}
+          {/* Seller - visible on both mobile and desktop */}
           <motion.a
             href="https://seller.shreeaura.in"
             target="_blank"
             rel="noopener noreferrer"
-            className="hidden md:block text-[var(--foreground)] hover:text-[var(--primary)] font-medium text-sm tracking-wide transition-colors"
+            className="text-[var(--foreground)] hover:text-[var(--primary)] font-medium text-sm tracking-wide transition-colors hidden sm:block"
           >
             Become a Seller
           </motion.a>
@@ -189,9 +189,11 @@ export default function Header({ setCurrentPage }: HeaderProps) {
           {!user ? (
             <motion.button
               onClick={() => setCurrentPage("login")}
-              className="hidden md:block text-[var(--foreground)] hover:text-[var(--primary)] font-medium text-sm tracking-wide transition-colors"
+              className="text-[var(--foreground)] hover:text-[var(--primary)] font-medium text-sm tracking-wide transition-colors flex items-center gap-1"
             >
-              Log In
+              <User size={18} />
+              {!isMobile && <span>Log In</span>}
+              {isMobile && <span className="text-xs">Login</span>}
             </motion.button>
           ) : (
             <div className="relative" ref={dropdownRef}>
@@ -212,6 +214,15 @@ export default function Header({ setCurrentPage }: HeaderProps) {
                     transition={{ duration: 0.2 }}
                     className="absolute top-12 left-1/2 -translate-x-1/2 md:left-auto md:right-0 md:translate-x-0 bg-white border border-gray-100 rounded-none shadow-xl w-[160px] md:w-[180px] overflow-hidden z-50 py-2"
                   >
+                    {/* Mobile-only: Become a Seller in dropdown */}
+                    <a
+                      href="https://seller.shreeaura.in"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block sm:hidden w-full text-left px-5 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[var(--primary)] transition-colors"
+                    >
+                      Become a Seller
+                    </a>
                     <button
                       className="w-full text-left px-5 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[var(--primary)] transition-colors"
                       onClick={() => setCurrentPage("profile")}

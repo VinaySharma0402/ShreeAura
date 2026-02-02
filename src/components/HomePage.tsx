@@ -3,14 +3,14 @@ import { motion, AnimatePresence } from "motion/react";
 import { ChevronLeft, ChevronRight, Truck, ShoppingBasket, Headset, Smartphone } from "lucide-react";
 
 
-import BestDeals from "./BestDeals";
+import TopRateds from "./TopRateds";
 import PromoBanners from "./PromoBanners";
 import PopularCategories from "./PopularCategories";
-import StartCart from "./StartCart";
+import ShopByName from "./ShopByName";
 import MobileAppPromo from "./MobileAppPromo";
-import MostPopular from "./MostPopular";
+// import MostPopular from "./MostPopular"; // Hidden for future use
 import SecondaryPromos from "./SecondaryPromos";
-import FreshFinds from "./FreshFinds";
+// import FreshFinds from "./FreshFinds"; // Hidden for future use
 import SubscribeSection from "./SubscribeSection";
 
 interface HomePageProps {
@@ -36,8 +36,8 @@ export default function HomePage({ setCurrentPage }: HomePageProps) {
       titleLines: ["Stock Up on", "Daily Essentials"],
       subtitle: "Easy, Fresh & Convenient",
       secondaryTextLines: ["Save Big on Your", "Favorite Brands"],
-      leftImage: "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&q=80&w=600", // Packaged Bread
-      rightImage: "https://images.unsplash.com/photo-1598373182133-52452f7691ef?auto=format&fit=crop&q=80&w=600", // Fresh Bread
+      leftImage: "https://images.pexels.com/photos/1775043/pexels-photo-1775043.jpeg?auto=compress&cs=tinysrgb&w=600", // Fresh Bread
+      rightImage: "https://images.pexels.com/photos/298217/pexels-photo-298217.jpeg?auto=compress&cs=tinysrgb&w=600", // Bread Loaf
       buttonColor: "#ED1C24", // Red
       textColor: "text-[#1c1c1c]",
     },
@@ -47,8 +47,8 @@ export default function HomePage({ setCurrentPage }: HomePageProps) {
       titleLines: ["Stock Up on", "Daily Essentials"],
       subtitle: "Easy, Fresh & Convenient",
       secondaryTextLines: ["Save Big on Your", "Favorite Brands"],
-      leftImage: "https://images.unsplash.com/photo-1559563458-527698bf5295?auto=format&fit=crop&q=80&w=500", // Teddy Bear
-      rightImage: "https://images.unsplash.com/photo-1556228578-f3b914d9e7d7?auto=format&fit=crop&q=80&w=500", // Baby Products
+      leftImage: "https://images.pexels.com/photos/3622614/pexels-photo-3622614.jpeg?auto=compress&cs=tinysrgb&w=600", // Baby Products
+      rightImage: "https://images.pexels.com/photos/3661387/pexels-photo-3661387.jpeg?auto=compress&cs=tinysrgb&w=600", // Baby Items
       buttonColor: "#ED1C24", // Red
       textColor: "text-[#1c1c1c]",
     },
@@ -104,11 +104,11 @@ export default function HomePage({ setCurrentPage }: HomePageProps) {
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.8 }}
               >
-                <div className="max-w-[1400px] mx-auto w-full grid grid-cols-1 md:grid-cols-12 items-center gap-4 relative z-10 px-4">
+                <div className="max-w-[1400px] mx-auto w-full grid grid-cols-3 md:grid-cols-12 items-center gap-2 md:gap-4 relative z-10 px-2 md:px-4">
 
                   {/* Left Image */}
                   <motion.div
-                    className="hidden md:block md:col-span-3 lg:col-span-3"
+                    className="col-span-1 md:col-span-3 lg:col-span-3 flex items-center justify-center"
                     initial={{ x: -50, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
                     transition={{ duration: 0.8 }}
@@ -116,14 +116,14 @@ export default function HomePage({ setCurrentPage }: HomePageProps) {
                     <img
                       src={slide.leftImage}
                       alt="Left Hero Asset"
-                      className="w-full h-auto max-h-[400px] object-contain drop-shadow-xl -rotate-6 hover:scale-105 transition-transform duration-500"
+                      className="w-full h-auto max-h-[150px] md:max-h-[400px] object-contain drop-shadow-xl -rotate-6 hover:scale-105 transition-transform duration-500"
                     />
                   </motion.div>
 
                   {/* Center Text - Left Aligned inside the column */}
-                  <div className="col-span-1 md:col-span-6 lg:col-span-6 text-left flex flex-col items-start justify-center z-20 pt-8 md:pt-0 pl-4 md:pl-12">
+                  <div className="col-span-1 md:col-span-6 lg:col-span-6 text-center md:text-left flex flex-col items-center md:items-start justify-center z-20 pt-4 md:pt-0 px-1 md:pl-12">
                     <motion.p
-                      className="text-gray-800 font-medium text-lg md:text-xl mb-2 tracking-wide font-['Outfit'] lowercase first-letter:uppercase"
+                      className="text-gray-800 font-medium text-xs md:text-xl mb-1 md:mb-2 tracking-wide font-['Outfit'] lowercase first-letter:uppercase"
                       initial={{ y: 20, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
                       transition={{ delay: 0.2 }}
@@ -131,11 +131,11 @@ export default function HomePage({ setCurrentPage }: HomePageProps) {
                       {slide.subtitle}
                     </motion.p>
 
-                    <div className="mb-4">
+                    <div className="mb-2 md:mb-4">
                       {slide.titleLines.map((line, i) => (
                         <motion.h1
                           key={i}
-                          className={`text-4xl md:text-6xl font-extrabold leading-tight font-['Outfit'] ${slide.textColor}`}
+                          className={`text-lg md:text-6xl font-extrabold leading-tight font-['Outfit'] ${slide.textColor}`}
                           initial={{ y: 20, opacity: 0 }}
                           animate={{ y: 0, opacity: 1 }}
                           transition={{ delay: 0.3 + (i * 0.1) }}
@@ -145,7 +145,7 @@ export default function HomePage({ setCurrentPage }: HomePageProps) {
                       ))}
                     </div>
 
-                    <div className="mb-8">
+                    <div className="mb-4 md:mb-8 hidden md:block">
                       {slide.secondaryTextLines.map((line, i) => (
                         <motion.h2
                           key={i}
@@ -166,7 +166,7 @@ export default function HomePage({ setCurrentPage }: HomePageProps) {
                       initial={{ y: 20, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
                       transition={{ delay: 0.5 }}
-                      className="text-white px-10 py-3.5 rounded-full font-bold text-lg hover:brightness-110 transition-all shadow-lg font-['Outfit'] capitalize border-none cursor-pointer"
+                      className="text-white px-4 md:px-10 py-2 md:py-3.5 rounded-full font-bold text-sm md:text-lg hover:brightness-110 transition-all shadow-lg font-['Outfit'] capitalize border-none cursor-pointer"
                       style={{ backgroundColor: slide.buttonColor }}
                     >
                       Shop Now
@@ -175,7 +175,7 @@ export default function HomePage({ setCurrentPage }: HomePageProps) {
 
                   {/* Right Image */}
                   <motion.div
-                    className="hidden md:block md:col-span-3 lg:col-span-3"
+                    className="col-span-1 md:col-span-3 lg:col-span-3 flex items-center justify-center"
                     initial={{ x: 50, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
                     transition={{ duration: 0.8 }}
@@ -183,7 +183,7 @@ export default function HomePage({ setCurrentPage }: HomePageProps) {
                     <img
                       src={slide.rightImage}
                       alt="Right Hero Asset"
-                      className="w-full h-auto max-h-[400px] object-contain drop-shadow-xl rotate-6 hover:scale-105 transition-transform duration-500"
+                      className="w-full h-auto max-h-[150px] md:max-h-[400px] object-contain drop-shadow-xl rotate-6 hover:scale-105 transition-transform duration-500"
                     />
                   </motion.div>
                 </div>
@@ -259,28 +259,34 @@ export default function HomePage({ setCurrentPage }: HomePageProps) {
       </div>
 
       {/* Best Deals Section */}
-      <BestDeals setCurrentPage={setCurrentPage} />
+      <div id="top-rated">
+        <TopRateds setCurrentPage={setCurrentPage} />
+      </div>
 
       {/* Promo Banners Section */}
       <PromoBanners setCurrentPage={setCurrentPage} />
 
       {/* Most Popular Categories */}
-      <PopularCategories setCurrentPage={setCurrentPage} />
+      <div id="popular-categories">
+        <PopularCategories setCurrentPage={setCurrentPage} />
+      </div>
 
       {/* Start Your Cart Section */}
-      <StartCart setCurrentPage={setCurrentPage} />
+      <div id="shop-by-name">
+        <ShopByName setCurrentPage={setCurrentPage} />
+      </div>
 
       {/* Mobile App Promo */}
       <MobileAppPromo />
 
-      {/* Most Popular Section */}
-      <MostPopular setCurrentPage={setCurrentPage} />
+      {/* Most Popular Section - Hidden for future use */}
+      {/* <MostPopular setCurrentPage={setCurrentPage} /> */}
 
       {/* Secondary Promos (Pasta & Cereal) */}
       <SecondaryPromos setCurrentPage={setCurrentPage} />
 
-      {/* Fresh Finds Section */}
-      <FreshFinds setCurrentPage={setCurrentPage} />
+      {/* Fresh Finds Section - Hidden for future use */}
+      {/* <FreshFinds setCurrentPage={setCurrentPage} /> */}
 
       {/* Subscribe & Save Section */}
       <SubscribeSection />

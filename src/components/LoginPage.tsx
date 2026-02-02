@@ -5,10 +5,6 @@ import {
   EyeOff,
   Mail,
   Lock,
-  ArrowRight,
-  Facebook,
-  Instagram,
-  Twitter,
   ArrowLeft,
 } from "lucide-react";
 import { Button } from "./ui/button";
@@ -160,23 +156,7 @@ export default function LoginPage({ setCurrentPage }: LoginPageProps) {
     visible: { opacity: 1, x: 0, transition: { duration: 0.4 } },
   };
 
-  const floatingElements = Array.from({ length: 6 }, (_, i) => (
-    <motion.div
-      key={i}
-      className="absolute w-2 h-2 bg-[#FFD369]/20 rounded-full"
-      animate={{
-        y: [0, -20, 0],
-        x: [0, Math.random() * 20 - 10, 0],
-        opacity: [0.2, 0.8, 0.2],
-      }}
-      transition={{
-        duration: 3 + Math.random() * 2,
-        repeat: Infinity,
-        delay: Math.random() * 2,
-      }}
-      style={{ left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%` }}
-    />
-  ));
+
 
   // ---------------- RENDER ----------------
   return (

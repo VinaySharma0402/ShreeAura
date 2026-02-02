@@ -15,18 +15,18 @@ export default function InvoicePage() {
 
   if (!order) {
     return (
-      <div className="min-h-screen bg-[#1a0f1a] flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           className="text-center space-y-6"
         >
-          <FileText className="w-20 h-20 text-[#FFD369]/50 mx-auto" />
-          <h2 className="text-3xl font-bold text-white">No Order Found</h2>
-          <p className="text-white/70">Please select an order first.</p>
+          <FileText className="w-20 h-20 text-[var(--primary)]/50 mx-auto" />
+          <h2 className="text-3xl font-bold text-gray-900">No Order Found</h2>
+          <p className="text-gray-600">Please select an order first.</p>
           <Button
             onClick={() => navigate(-1)}
-            className="bg-[#FFD369] text-[#1a0f1a] hover:bg-[#ffcb47] px-6 py-3"
+            className="bg-[var(--primary)] text-white hover:bg-[var(--primary)]/90 px-6 py-3"
           >
             Go Back
           </Button>
@@ -87,13 +87,13 @@ export default function InvoicePage() {
   // Support `productsList` shape returned by backend: array of { ProductName, Quantity, ProductPrice }
   const productList = Array.isArray((order as any).productsList)
     ? (order as any).productsList.map((p: any) => ({
-        name: p.ProductName,
-        qty: p.Quantity,
-        price: p.ProductPrice,
-      }))
+      name: p.ProductName,
+      qty: p.Quantity,
+      price: p.ProductPrice,
+    }))
     : Object.entries(order.products || {})
-        .filter(([key, value]) => typeof value === "number" && !/price/i.test(key))
-        .map(([name, qty]) => ({ name, qty: qty as number, price: getProductPrice(order, name) }));
+      .filter(([key, value]) => typeof value === "number" && !/price/i.test(key))
+      .map(([name, qty]) => ({ name, qty: qty as number, price: getProductPrice(order, name) }));
   const orderDate = new Date(order.orderTime || (order as any).orderDateTime || Date.now());
   const invoiceNumber = order.orderId ? `INV-${String(order.orderId).slice(-8).toUpperCase()}` : `INV-${Date.now()}`;
 
@@ -116,7 +116,7 @@ export default function InvoicePage() {
       const canvas = await html2canvas(invoiceRef.current, {
         scale: 2,
         useCORS: true,
-        backgroundColor: "#1a0f1a",
+        backgroundColor: "#ffffff",
       });
 
       const pdf = new jsPDF("p", "mm", "a4");
@@ -145,7 +145,7 @@ export default function InvoicePage() {
       exit="exit"
       variants={pageVariants}
       transition={{ duration: 0.4 }}
-      className="min-h-screen bg-[#1a0f1a] pt-8 pb-12"
+      className="min-h-screen bg-[var(--background)] pt-8 pb-12"
     >
       <div className="container mx-auto px-4 max-w-4xl">
         {/* Header Actions */}
@@ -154,7 +154,7 @@ export default function InvoicePage() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => navigate(-1)}
-            className="flex items-center gap-2 text-[#FFD369] hover:text-[#ffcb47] transition-colors"
+            className="flex items-center gap-2 text-[var(--primary)] hover:text-[var(--primary)]/80 transition-colors"
           >
             <ArrowLeft size={20} />
             Back to Orders
@@ -163,7 +163,7 @@ export default function InvoicePage() {
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <Button
               onClick={handleDownloadPDF}
-              className="bg-[#FFD369] text-[#1a0f1a] hover:bg-[#ffcb47] flex items-center gap-2 font-semibold"
+              className="bg-[var(--primary)] text-white hover:bg-[var(--primary)]/90 flex items-center gap-2 font-semibold"
             >
               <Download size={20} />
               Download Invoice
@@ -177,14 +177,14 @@ export default function InvoicePage() {
           className="bg-white text-gray-900 rounded-lg shadow-2xl overflow-hidden"
         >
           {/* Header */}
-          <div className="bg-linear-to-r from-[#2C1E4A] to-[#1a0f1a] text-white p-8">
+          <div className="bg-gradient-to-r from-[var(--primary)] to-[var(--primary)]/80 text-white p-8">
             <div className="flex justify-between items-start mb-6">
               <div>
                 <h1 className="text-4xl font-bold mb-2">SHREEAURA</h1>
                 <p className="text-sm opacity-75">Beauty & Cosmetics</p>
               </div>
               <div className="text-right">
-                <p className="text-3xl font-bold text-[#FFD369]">INVOICE</p>
+                <p className="text-3xl font-bold text-[var(--secondary)]">INVOICE</p>
                 <p className="text-sm opacity-75">{invoiceNumber}</p>
               </div>
             </div>
@@ -308,7 +308,7 @@ export default function InvoicePage() {
                       )}
                       <div className="flex justify-between py-3 border-t-2 border-gray-300 font-bold text-lg">
                         <span>Total Amount:</span>
-                        <span className="text-[#2C1E4A]">₹{subtotalToShow.toFixed(2)}</span>
+                        <span className="text-[var(--primary)]">₹{subtotalToShow.toFixed(2)}</span>
                       </div>
                     </>
                   );
@@ -336,7 +336,7 @@ export default function InvoicePage() {
         >
           <Button
             onClick={handleDownloadPDF}
-            className="bg-[#FFD369] text-[#1a0f1a] hover:bg-[#ffcb47] font-semibold px-8 py-3"
+            className="bg-[var(--primary)] text-white hover:bg-[var(--primary)]/90 font-semibold px-8 py-3"
           >
             <Download size={20} className="mr-2" />
             Download as PDF
@@ -344,7 +344,7 @@ export default function InvoicePage() {
           <Button
             onClick={() => window.print()}
             variant="outline"
-            className="border-[#FFD369] text-[#FFD369] hover:bg-[#FFD369]/10 font-semibold px-8 py-3"
+            className="border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)]/10 font-semibold px-8 py-3"
           >
             <FileText size={20} className="mr-2" />
             Print Invoice
