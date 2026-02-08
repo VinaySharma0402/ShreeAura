@@ -32,9 +32,7 @@ export default function SearchPage({
   const location = useLocation();
   const params = new URLSearchParams(location.search);
 
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [location.pathname]);
+  // Scroll to top is now handled globally in App.tsx
 
   const qName = params.get("name") || "";
   const qCategory = params.get("category") || "";
@@ -424,7 +422,7 @@ export default function SearchPage({
                 return (
                   <motion.div
                     key={product.productId}
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.4 }}
                     className="w-full"

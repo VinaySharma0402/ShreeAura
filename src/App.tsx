@@ -42,6 +42,35 @@ function AnimatedRoutes() {
     }
   }, [location.pathname, location.search]);
 
+  // Global scroll to top on every page navigation
+  useEffect(() => {
+    // Disable browser's automatic scroll restoration
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+    }
+
+    // Scroll function
+    const scrollToTop = () => {
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    };
+
+    // Immediate scroll
+    scrollToTop();
+
+    // Scroll at multiple intervals to catch all animation phases
+    const timer1 = setTimeout(scrollToTop, 50);
+    const timer2 = setTimeout(scrollToTop, 200);
+    const timer3 = setTimeout(scrollToTop, 500);
+
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+      clearTimeout(timer3);
+    };
+  }, [location.pathname, location.search]);
+
   useEffect(() => {
     let removeListener: any;
     try {
@@ -93,6 +122,8 @@ function AnimatedRoutes() {
       name?: string;
     }
   ) => {
+    // Scroll to top immediately before navigation
+    window.scrollTo({ top: 0, behavior: "instant" });
 
     const params = new URLSearchParams();
     if (options?.category) params.append("category", options.category);
@@ -153,11 +184,11 @@ function AnimatedRoutes() {
     }
   };
 
-  // Animation settings
+  // Animation settings - reduced y offset to prevent scroll position issues
   const pageVariants = {
-    initial: { opacity: 0, y: 20, scale: 0.98 },
+    initial: { opacity: 0, y: 5, scale: 0.99 },
     in: { opacity: 1, y: 0, scale: 1 },
-    out: { opacity: 0, y: -20, scale: 1.02 },
+    out: { opacity: 0, y: -5, scale: 1.01 },
   };
 
   const pageTransition: any = {
@@ -181,7 +212,7 @@ function AnimatedRoutes() {
 
       <AnimatePresence mode="wait">
         <motion.main
-          key={location.pathname}
+          key={location.pathname + location.search}
           className={!isSpecialPage ? "" : "min-h-screen"}
           initial="initial"
           animate="in"

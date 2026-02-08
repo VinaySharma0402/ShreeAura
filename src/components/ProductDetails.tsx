@@ -5,7 +5,6 @@ import { useCart } from "../contexts/CartContext";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
 import { HomePageApi } from "./services/homepage";
-import { getProductReviews } from "./services/costumer";
 
 export default function ProductDetails() {
   const location = useLocation();
@@ -55,7 +54,7 @@ export default function ProductDetails() {
       const id = product?.productId || productId;
       if (!id) return;
       try {
-        const reviews = await getProductReviews(id);
+        const reviews = await HomePageApi.getProductReviews(id);
         if (reviews && reviews.length > 0) {
           const total = reviews.reduce((acc: number, r: any) => acc + (Number(r.rating) || 0), 0);
           setRating(total / reviews.length);
@@ -250,7 +249,7 @@ export default function ProductDetails() {
                           {review.users?.name?.charAt(0)?.toUpperCase() || <User size={16} />}
                         </div>
                         <span className="font-medium text-gray-900">
-                          {review.users?.name || "Anonymous"}
+                          {review?.userName || "Anonymous"}
                         </span>
                       </div>
                       <div className="flex items-center gap-1 bg-green-600 text-white px-2 py-0.5 rounded text-xs">

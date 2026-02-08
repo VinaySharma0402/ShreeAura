@@ -92,9 +92,9 @@ export default function CartDrawer() {
                                             <div className="flex justify-between items-end mt-2">
                                                 {/* Price */}
                                                 <div className="flex flex-col">
-                                                    <span className="font-bold text-[#1c1c1c]">${item.sellingPrice.toFixed(2)}</span>
+                                                    <span className="font-bold text-[#1c1c1c]">₹{item.sellingPrice.toFixed(2)}</span>
                                                     {item.mrp > item.sellingPrice && (
-                                                        <span className="text-xs text-gray-400 line-through">${item.mrp.toFixed(2)}</span>
+                                                        <span className="text-xs text-gray-400 line-through">₹{item.mrp.toFixed(2)}</span>
                                                     )}
                                                 </div>
 
@@ -127,7 +127,7 @@ export default function CartDrawer() {
                                 {/* Subtotal */}
                                 <div className="flex justify-between items-center mb-4">
                                     <span className="text-lg font-medium text-gray-700">Estimated total</span>
-                                    <span className="text-xl font-bold text-[#1c1c1c]">${subtotal.toFixed(2)}</span>
+                                    <span className="text-xl font-bold text-[#1c1c1c]">₹{subtotal.toFixed(2)}</span>
                                 </div>
 
                                 {/* Buttons */}

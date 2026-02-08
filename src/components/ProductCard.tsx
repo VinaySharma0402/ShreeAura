@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { motion } from "motion/react";
 import { Heart, ShoppingCart, Star } from "lucide-react";
 import { Button } from "./ui/button";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { toast } from "sonner";
-import { getProductReviews } from "./services/costumer";
 
 export interface Product {
   productId: string;
@@ -39,27 +38,9 @@ export default function ProductCard({
   buttonText,
   onBuyNow,
 }: ProductCardProps) {
-  const [rating, setRating] = useState(product.rating || 0);
-  const [reviewsCount, setReviewsCount] = useState(product.reviews || 0);
-
-  // Fetch reviews and calculate average rating
-  useEffect(() => {
-    const fetchRating = async () => {
-      if (!product.productId) return;
-      try {
-        const reviews = await getProductReviews(product.productId);
-        if (reviews && reviews.length > 0) {
-          const total = reviews.reduce((acc: number, r: any) => acc + (Number(r.rating) || 0), 0);
-          setRating(total / reviews.length);
-          setReviewsCount(reviews.length);
-        }
-      } catch (error) {
-        // Silently fail - show default rating from product
-        console.error("Failed to fetch rating for product", product.productId);
-      }
-    };
-    fetchRating();
-  }, [product.productId]);
+  // Use product rating and reviews directly from props
+  const rating = product.rating || 0;
+  const reviewsCount = product.reviews || 0;
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -90,7 +71,7 @@ export default function ProductCard({
     <motion.div
       whileHover={{ scale: 1.02, y: -3 }}
       whileTap={{ scale: 0.98 }}
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
       className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-md hover:shadow-lg cursor-pointer group w-full max-w-[280px]"

@@ -123,11 +123,11 @@ export default function FreshFinds({ setCurrentPage }: { setCurrentPage: (page: 
                                 <div className="flex items-baseline gap-2">
                                     {item.originalPrice && (
                                         <span className="text-gray-400 font-medium text-sm font-['Outfit'] line-through">
-                                            ${item.originalPrice.toFixed(2)}
+                                            ₹{item.originalPrice.toFixed(2)}
                                         </span>
                                     )}
                                     <span className="text-[#ED1C24] font-bold text-lg font-['Outfit']">
-                                        ${item.price.toFixed(2)}
+                                        ₹{item.price.toFixed(2)}
                                     </span>
                                 </div>
                             </div>

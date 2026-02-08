@@ -1,6 +1,7 @@
 // homepageApi.ts
 import axios from "axios";
 import { API_BASE } from "./auth";
+import type { Review } from "./costumer";
 
 // Define strict types for the API responses
 export interface Product {
@@ -52,4 +53,19 @@ export const HomePageApi = {
 
   // Best Deals
   getTopRateds: async () => axios.get(`${API_BASE_URL}/get-best-deals`),
+
+  // Product Reviews
+  getProductReviews: async (productId: string): Promise<Review[]> => {
+    const res = await fetch(`${API_BASE_URL}/get-product-review?productId=${productId}`, {
+      method: "GET",
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      console.error("Failed to get product reviews:", text);
+      throw new Error(`Failed to get product reviews. Status: ${res.status}`);
+    }
+
+    return await res.json();
+  },
 };

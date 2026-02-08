@@ -6,7 +6,6 @@ interface SecondaryHeaderProps {
 
 export default function SecondaryHeader({ setCurrentPage }: SecondaryHeaderProps) {
     const categories = [
-        { name: "Deals", action: () => setCurrentPage("search", { category: "Deals" }) },
         { name: "Top Rated", action: () => scrollToSection("top-rated") },
         { name: "Popular Categories", action: () => scrollToSection("popular-categories") },
         { name: "Shop by Name", action: () => scrollToSection("shop-by-name") },

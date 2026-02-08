@@ -174,7 +174,7 @@ export default function RegisterPage({ setCurrentPage }: RegisterPageProps) {
           <div className="flex flex-col items-center justify-center">
             <ImageWithFallback src="/logo.png" className="w-20 h-20 mb-4 drop-shadow-sm" />
             <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Create Account</h1>
-            <p className="text-gray-500 mt-2 text-sm">Join Shree Grocery family today</p>
+            <p className="text-gray-500 mt-2 text-sm">Join Shree Aura family today</p>
           </div>
         </motion.div>
 

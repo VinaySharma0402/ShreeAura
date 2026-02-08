@@ -141,7 +141,7 @@ export default function Header({ setCurrentPage }: HeaderProps) {
             />
           </div>
           <span className="text-2xl font-bold text-[var(--foreground)] tracking-tight">
-            Shree Grocery
+            Shree Aura
           </span>
         </motion.div>
 
