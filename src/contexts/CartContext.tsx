@@ -93,6 +93,12 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     localStorage.setItem('orders', JSON.stringify(orders));
   }, [orders]);
 
+  // Auto-update cartTotal whenever items change
+  useEffect(() => {
+    const total = items.reduce((sum, item) => sum + (item.sellingPrice * item.quantity), 0);
+    setCartTotal(total);
+  }, [items]);
+
   const addToCart = (newItem: Omit<CartItem, 'quantity'>, quantity: number = 1) => {
     setItems(prevItems => {
       const existingItem = prevItems.find(item => item.productId === newItem.productId);
