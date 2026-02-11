@@ -84,7 +84,7 @@ export default function CartPage({ setCurrentPage }: CartPageProps) {
           <ShoppingBag className="w-20 h-20 text-[var(--secondary)] mx-auto animate-bounce" />
           <h2 className="text-3xl font-bold text-[var(--foreground)]">Your cart is empty</h2>
           <Button
-            onClick={() => setCurrentPage("home")}
+            onClick={() => navigate("/")}
             className="bg-[var(--primary)] text-white hover:bg-[var(--primary)]/90 px-6 py-3 shadow-lg"
           >
             Continue Shopping

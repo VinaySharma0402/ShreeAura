@@ -4,6 +4,8 @@ import { Search, ShoppingBag, User } from "lucide-react";
 import { jwtDecode } from "jwt-decode";
 import { useCart } from "../contexts/CartContext";
 import { HomePageApi } from "./services/homepage";
+import { isLoggedIn } from "./services/auth";
+import { toast } from "sonner";
 import logo from "../assets/aura_shree_logo.png";
 
 interface HeaderProps {
@@ -249,7 +251,19 @@ export default function Header({ setCurrentPage }: HeaderProps) {
 
           {/* Cart */}
           <motion.button
-            onClick={() => toggleCart(true)}
+            onClick={() => {
+              if (!isLoggedIn()) {
+                toast.error("Please login first to view your cart", {
+                  action: {
+                    label: "Login",
+                    onClick: () => setCurrentPage("login"),
+                  },
+                  duration: 5000,
+                });
+                return;
+              }
+              toggleCart(true);
+            }}
             className="relative flex items-center gap-1 text-[var(--foreground)] hover:text-[var(--primary)] transition-colors font-medium"
           >
             <ShoppingBag size={22} strokeWidth={1.5} />
