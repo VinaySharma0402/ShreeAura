@@ -7,7 +7,8 @@ import { ImageWithFallback } from "../components/figma/ImageWithFallback";
 import { useCart } from "../contexts/CartContext";
 import { useEffect } from "react";
 import { toast } from "sonner";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { isLoggedIn } from "../components/services/auth";
 
 
 interface CartPageProps {
@@ -16,6 +17,7 @@ interface CartPageProps {
 
 export default function CartPage({ setCurrentPage }: CartPageProps) {
   const { items, updateQuantity, removeFromCart, getCartTotal, setCartTotal, cartTotal } = useCart();
+  const navigate = useNavigate();
   const subtotal = getCartTotal();
 
   const tax = 1;
@@ -29,6 +31,20 @@ export default function CartPage({ setCurrentPage }: CartPageProps) {
   setCartTotal(total);
   console.log("Cart Total in CartPage:", cartTotal);
   const location = useLocation();
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!isLoggedIn()) {
+      toast.error("Please login first to view your cart", {
+        action: {
+          label: "Login",
+          onClick: () => navigate("/login"),
+        },
+        duration: 5000,
+      });
+      navigate("/login");
+    }
+  }, [navigate]);
 
   // Scroll to top on page mount
   useEffect(() => {

@@ -4,6 +4,8 @@ import { useCart } from "../contexts/CartContext";
 import { Button } from "./ui/button";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { useNavigate } from "react-router-dom";
+import { isLoggedIn } from "./services/auth";
+import { toast } from "sonner";
 
 export default function CartDrawer() {
     const { items, removeFromCart, updateQuantity, getCartTotal, isCartOpen, toggleCart } = useCart();
@@ -12,12 +14,33 @@ export default function CartDrawer() {
     const subtotal = getCartTotal();
     const itemCount = items.reduce((acc, item) => acc + item.quantity, 0);
 
+    const showLoginToast = () => {
+        toast.error("Please login first to access your cart", {
+            action: {
+                label: "Login",
+                onClick: () => {
+                    toggleCart(false);
+                    navigate("/login");
+                },
+            },
+            duration: 5000,
+        });
+    };
+
     const handleCheckout = () => {
+        if (!isLoggedIn()) {
+            showLoginToast();
+            return;
+        }
         toggleCart(false);
         navigate("/checkout");
     };
 
     const handleViewCart = () => {
+        if (!isLoggedIn()) {
+            showLoginToast();
+            return;
+        }
         toggleCart(false);
         navigate("/cart");
     };

@@ -26,6 +26,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "../components/ui/dialog";
+import { useNavigate } from "react-router-dom";
 
 interface CheckoutPageProps {
   setCurrentPage: (page: string) => void;
@@ -34,6 +35,7 @@ interface CheckoutPageProps {
 export default function CheckoutPage({ setCurrentPage }: CheckoutPageProps) {
   const { items, clearCart, cartTotal } = useCart();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const subtotal = cartTotal;
 
 
@@ -47,6 +49,21 @@ export default function CheckoutPage({ setCurrentPage }: CheckoutPageProps) {
   const [locationWarning, setLocationWarning] = useState("");
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [transactionId, setTransactionId] = useState("");
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!isLoggedIn()) {
+      toast.error("Please login first to checkout", {
+        action: {
+          label: "Login",
+          onClick: () => navigate("/login"),
+        },
+        duration: 5000,
+      });
+      navigate("/login");
+    }
+  }, [navigate]);
+
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [location.pathname]);
@@ -387,8 +404,8 @@ export default function CheckoutPage({ setCurrentPage }: CheckoutPageProps) {
         <Button
           onClick={handlePlaceOrder}
           className={`w-full py-3 text-lg font-semibold ${isOrderDisabled
-              ? "bg-gray-300 cursor-not-allowed text-gray-500"
-              : "bg-[var(--primary)] text-white hover:bg-[var(--primary)]/90"
+            ? "bg-gray-300 cursor-not-allowed text-gray-500"
+            : "bg-[var(--primary)] text-white hover:bg-[var(--primary)]/90"
             }`}
         >
           {isProcessing ? "Processing..." : `Place Order ₹${total.toFixed(2)}`}
