@@ -36,9 +36,11 @@ export default function CheckoutPage({ setCurrentPage }: CheckoutPageProps) {
   const { items, clearCart, getCartTotal } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const subtotal = getCartTotal();
 
-
+  // Save the order total so it persists after cart is cleared
+  const [savedTotal, setSavedTotal] = useState<number | null>(null);
+  const liveSubtotal = getCartTotal();
+  const subtotal = savedTotal !== null ? savedTotal : liveSubtotal;
   const total = subtotal;
 
   const [isProcessing, setIsProcessing] = useState(false);
@@ -168,6 +170,7 @@ export default function CheckoutPage({ setCurrentPage }: CheckoutPageProps) {
 
       if (modeOfPayment === "cod") {
         await placeOrder(orderPayload, coords.lat, coords.lng, "");
+        setSavedTotal(liveSubtotal);
         setShowSuccessDialog(true);
         clearCart();
         return;
@@ -199,6 +202,7 @@ export default function CheckoutPage({ setCurrentPage }: CheckoutPageProps) {
               );
 
               if (status.includes("Successful")) {
+                setSavedTotal(liveSubtotal);
                 setShowSuccessDialog(true);
                 clearCart();
               } else {

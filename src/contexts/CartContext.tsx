@@ -95,7 +95,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
   // Auto-update cartTotal whenever items change
   useEffect(() => {
-    const total = items.reduce((sum, item) => sum + (item.sellingPrice * item.quantity), 0);
+    const total = items.reduce((sum, item) => sum + ((item.sellingPrice || 0) * item.quantity), 0);
     setCartTotal(total);
   }, [items]);
 
@@ -137,7 +137,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   };
 
   const getCartTotal = () => {
-    return items.reduce((total, item) => total + (item.sellingPrice * item.quantity), 0);
+    return items.reduce((total, item) => total + ((item.sellingPrice || 0) * item.quantity), 0);
   };
 
 
