@@ -33,10 +33,10 @@ interface CheckoutPageProps {
 }
 
 export default function CheckoutPage({ setCurrentPage }: CheckoutPageProps) {
-  const { items, clearCart, cartTotal } = useCart();
+  const { items, clearCart, cartTotal, getCartTotal } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const subtotal = cartTotal;
+  const subtotal = getCartTotal();
 
 
   const total = subtotal;
@@ -446,8 +446,8 @@ export default function CheckoutPage({ setCurrentPage }: CheckoutPageProps) {
                   </DialogTitle>
 
                   <DialogDescription className="text-gray-700 mt-3 text-lg leading-relaxed">
-                    Thank you for choosing <b className="text-[var(--primary)]">RozoMeal</b>!
-                    Your delicious order is on its way.
+                    Thank you for choosing <b className="text-[var(--primary)]">Shree Aura</b>!
+                    Your order is on its way.
                   </DialogDescription>
                 </DialogHeader>
 

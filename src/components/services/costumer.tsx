@@ -318,19 +318,6 @@ export const WriteReview = async (review: Review) => {
   return await res.text(); // e.g. "Review written"
 };
 
-export const getProductReviews = async (productId: string): Promise<Review[]> => {
-  const res = await fetch(`${API_BASE}/user/get-product-review?productId=${productId}`, {
-    method: "GET",
-    headers: getAuthHeaders(),
-  });
 
-  if (!res.ok) {
-    const text = await res.text();
-    console.error("Failed to get product reviews:", text);
-    throw new Error(`Failed to get product reviews. Status: ${res.status}`);
-  }
-
-  return await res.json();
-};
 
 
