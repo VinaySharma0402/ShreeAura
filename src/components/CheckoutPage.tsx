@@ -33,7 +33,7 @@ interface CheckoutPageProps {
 }
 
 export default function CheckoutPage({ setCurrentPage }: CheckoutPageProps) {
-  const { items, clearCart, cartTotal, getCartTotal } = useCart();
+  const { items, clearCart, getCartTotal } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
   const subtotal = getCartTotal();
