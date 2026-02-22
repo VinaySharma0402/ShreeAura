@@ -16,6 +16,7 @@ export interface Product {
   reviews: number;
   badge?: string;
   stock?: number;
+  available?: boolean;
   imageUrl?: string;
   category?: string;
   description?: string;
@@ -66,6 +67,7 @@ export default function ProductCard({
   };
 
   const discount = calculateDiscount(product.mrp, product.sellingPrice);
+  const outOfStock = product.stock === 0 || product.available === false;
 
   return (
     <motion.div
@@ -109,7 +111,7 @@ export default function ProductCard({
         </div>
 
         {/* Out of Stock Overlay */}
-        {!product.stock && (
+        {outOfStock && (
           <div className="absolute inset-0 bg-white/70 backdrop-blur-[2px] flex items-center justify-center rounded-lg m-3">
             <span className="text-gray-800 text-sm font-bold border-2 border-gray-800 px-4 py-2 rounded-lg uppercase tracking-widest">
               Sold Out
@@ -185,17 +187,17 @@ export default function ProductCard({
         <div className="space-y-2 pt-2">
           {/* Add to Cart Button */}
           <button
-            className={`w-full flex items-center justify-center gap-2 py-2.5 px-4 border-2 border-[var(--primary)] text-[var(--primary)] rounded-full font-bold text-sm hover:bg-[var(--primary)] hover:text-white transition-all font-['Outfit'] ${!product.stock ? "opacity-50 cursor-not-allowed" : ""
+            className={`w-full flex items-center justify-center gap-2 py-2.5 px-4 border-2 border-[var(--primary)] text-[var(--primary)] rounded-full font-bold text-sm hover:bg-[var(--primary)] hover:text-white transition-all font-['Outfit'] ${outOfStock ? "opacity-50 cursor-not-allowed" : ""
               }`}
-            disabled={!product.stock}
+            disabled={outOfStock}
             onClick={handleAddToCart}
           >
             <ShoppingCart className="w-4 h-4" />
-            {!product.stock ? "Out of Stock" : (buttonText || "Add to Cart")}
+            {outOfStock ? "Out of Stock" : (buttonText || "Add to Cart")}
           </button>
 
           {/* Buy Now Button */}
-          {product.stock && onBuyNow && (
+          {!outOfStock && onBuyNow && (
             <button
               className="w-full py-2.5 px-4 bg-[var(--secondary)] text-gray-900 rounded-full font-bold text-sm hover:bg-[var(--secondary)]/90 transition-all font-['Outfit']"
               onClick={handleBuyNow}

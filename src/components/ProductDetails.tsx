@@ -85,12 +85,13 @@ export default function ProductDetails() {
   }
 
   const inCart = cartItems.some((i) => i.productId === product.productId);
+  const outOfStock = product.stock === 0 || product.available === false;
 
   // ------------------------------
   // ADD TO CART
   // ------------------------------
   const handleAddToCart = () => {
-    if (!product.stock) {
+    if (outOfStock) {
       toast.error("This product is out of stock!");
       return;
     }
@@ -110,7 +111,7 @@ export default function ProductDetails() {
   const handleBuyNow = (e: React.MouseEvent) => {
     e.stopPropagation();
 
-    if (!product.stock) {
+    if (outOfStock) {
       toast.error("This product is out of stock!");
       return;
     }
@@ -162,24 +163,41 @@ export default function ProductDetails() {
           </div>
 
           <div className="flex-1">
-            <img
-              src={product.imageUrl || product.image}
-              className="w-full rounded-xl shadow-lg"
-            />
+            <div className="relative">
+              <img
+                src={product.imageUrl || product.image}
+                className="w-full rounded-xl shadow-lg"
+              />
+              {outOfStock && (
+                <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] flex items-center justify-center rounded-xl">
+                  <span className="text-gray-800 text-lg font-bold border-2 border-gray-800 px-6 py-3 rounded-lg uppercase tracking-widest">
+                    Sold Out
+                  </span>
+                </div>
+              )}
+            </div>
 
             <div className="flex gap-4 mt-6">
               <button
-                className="w-1/2 py-3 bg-[var(--primary)] text-white font-bold rounded-lg hover:bg-[var(--primary)]/90 transition-all"
+                className={`w-1/2 py-3 font-bold rounded-lg transition-all ${outOfStock
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-[var(--primary)] text-white hover:bg-[var(--primary)]/90"
+                  }`}
                 onClick={handleAddToCart}
+                disabled={outOfStock}
               >
-                {inCart ? "GO TO CART" : "ADD TO CART"}
+                {outOfStock ? "OUT OF STOCK" : inCart ? "GO TO CART" : "ADD TO CART"}
               </button>
 
               <button
-                className="w-1/2 py-3 bg-[var(--secondary)] text-gray-900 font-bold rounded-lg hover:bg-[var(--secondary)]/90 transition-all"
+                className={`w-1/2 py-3 font-bold rounded-lg transition-all ${outOfStock
+                  ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                  : "bg-[var(--secondary)] text-gray-900 hover:bg-[var(--secondary)]/90"
+                  }`}
                 onClick={handleBuyNow}
+                disabled={outOfStock}
               >
-                BUY NOW
+                {outOfStock ? "UNAVAILABLE" : "BUY NOW"}
               </button>
             </div>
           </div>
@@ -267,6 +285,6 @@ export default function ProductDetails() {
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 }
